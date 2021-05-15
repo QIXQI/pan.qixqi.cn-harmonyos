@@ -1,0 +1,7 @@
+C:/Users/QIXQI/Desktop/ruobai/DevEco-workspace/pan.qixqi.cn-harmonyos/entry/build/generated/source/r/cn/qixqi/pan/ResourceTable.java
+C:/Users/QIXQI/Desktop/ruobai/DevEco-workspace/pan.qixqi.cn-harmonyos/entry/src/main/java/cn/qixqi/pan/MyApplication.java
+C:/Users/QIXQI/Desktop/ruobai/DevEco-workspace/pan.qixqi.cn-harmonyos/entry/build/generated/source/buildConfig/debug/cn/qixqi/pan/BuildConfig.java
+C:/Users/QIXQI/Desktop/ruobai/DevEco-workspace/pan.qixqi.cn-harmonyos/entry/src/main/java/cn/qixqi/pan/slice/MainAbilitySlice.java
+C:/Users/QIXQI/Desktop/ruobai/DevEco-workspace/pan.qixqi.cn-harmonyos/entry/src/test/java/cn/qixqi/pan/ExampleTest.java
+C:/Users/QIXQI/Desktop/ruobai/DevEco-workspace/pan.qixqi.cn-harmonyos/entry/src/main/java/cn/qixqi/pan/MainAbility.java
+C:/Users/QIXQI/Desktop/ruobai/DevEco-workspace/pan.qixqi.cn-harmonyos/entry/src/ohosTest/java/cn/qixqi/pan/ExampleOhosTest.java
