@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DependentLayout
+    xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:height="match_parent"
+    ohos:width="match_parent"
+    ohos:background_element="$color:colorSubBackground">
+
+    <include
+        ohos:id="$+id:title_bar"
+        ohos:height="$float:defaultHeight"
+        ohos:layout="$layout:title_bar_auth"
+        ohos:width="match_parent"
+        ohos:align_parent_top="true" />
+
+    <ScrollView
+        ohos:id="$+id:retrievePassScroll"
+        ohos:height="match_parent"
+        ohos:width="match_parent"
+        ohos:below="$id:title_bar"
+        ohos:bottom_margin="56vp"
+        ohos:top_margin="108vp"
+        ohos:orientation="vertical">
+
+        <DirectionalLayout
+            ohos:height="match_content"
+            ohos:width="match_parent"
+            ohos:orientation="vertical"
+            ohos:background_element="$color:colorSubBackground">
+
+            <!-- 输入手机号 -->
+            <TextField
+                ohos:id="$+id:phoneNumText"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:start_padding="$float:defaultPadding"
+                ohos:end_padding="$float:defaultPadding"
+                ohos:top_padding="$float:componentPadding"
+                ohos:bottom_padding="4vp"
+                ohos:start_margin="$float:defaultMargin"
+                ohos:end_margin="$float:defaultMargin"
+                ohos:text_alignment="bottom"
+                ohos:vertical_center="true"
+                ohos:text_input_type="pattern_number"
+                ohos:multiple_lines="true"
+                ohos:text_size="$float:default_text_size"
+                ohos:element_cursor_bubble="#00000000"
+                ohos:hint="$string:phoneNum" />
+
+            <DirectionalLayout
+                ohos:height="1vp"
+                ohos:width="match_parent"
+                ohos:start_margin="$float:maxMargin"
+                ohos:end_margin="$float:maxMargin"
+                ohos:background_element="$color:list_divider_color" />
+
+            <Text
+                ohos:id="$+id:validPhoneNum"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:start_padding="$float:defaultPadding"
+                ohos:end_padding="$float:defaultPadding"
+                ohos:top_padding="$float:componentPadding"
+                ohos:bottom_padding="4vp"
+                ohos:start_margin="$float:defaultMargin"
+                ohos:end_margin="$float:defaultMargin"
+                ohos:text_alignment="bottom"
+                ohos:vertical_center="true"
+                ohos:text_input_type="pattern_text"
+                ohos:multiple_lines="true"
+                ohos:element_cursor_bubble="#00000000"
+                ohos:text_size="14fp"
+                ohos:text_color="red"
+                ohos:text="$string:invalid_phoneNum"
+                ohos:visibility="hide" />
+
+            <!-- 输入手机验证码 -->
+            <DependentLayout
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:background_element="$color:colorSubBackground">
+
+                <TextField
+                    ohos:id="$+id:authCodeText"
+                    ohos:height="match_content"
+                    ohos:width="match_content"
+                    ohos:start_padding="$float:defaultPadding"
+                    ohos:end_padding="$float:defaultPadding"
+                    ohos:top_padding="$float:componentPadding"
+                    ohos:bottom_padding="4vp"
+                    ohos:start_margin="$float:defaultMargin"
+                    ohos:end_margin="$float:defaultMargin"
+                    ohos:align_parent_left="true"
+                    ohos:text_alignment="bottom"
+                    ohos:vertical_center="true"
+                    ohos:text_input_type="pattern_number"
+                    ohos:multiple_lines="true"
+                    ohos:text_size="$float:default_text_size"
+                    ohos:element_cursor_bubble="#00000000"
+                    ohos:hint="$string:authCode" />
+
+                <Button
+                    ohos:id="$+id:authCodeBtn"
+                    ohos:height="match_content"
+                    ohos:width="match_content"
+                    ohos:start_padding="8vp"
+                    ohos:end_padding="8vp"
+                    ohos:top_padding="4vp"
+                    ohos:bottom_padding="4vp"
+                    ohos:start_margin="$float:maxMargin"
+                    ohos:end_margin="$float:maxMargin"
+                    ohos:align_parent_right="true"
+                    ohos:vertical_center="true"
+                    ohos:text_alignment="center"
+                    ohos:text_color="#F2FFFFFF"
+                    ohos:text_size="$float:default_text_size"
+                    ohos:text="$string:getAuthCode"
+                    ohos:background_element="$graphic:background_auth_btn"/>
+
+            </DependentLayout>
+
+            <DirectionalLayout
+                ohos:height="1vp"
+                ohos:width="match_parent"
+                ohos:start_margin="$float:maxMargin"
+                ohos:end_margin="$float:maxMargin"
+                ohos:background_element="$color:list_divider_color" />
+
+            <Text
+                ohos:id="$+id:validAuthCode"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:start_padding="$float:defaultPadding"
+                ohos:end_padding="$float:defaultPadding"
+                ohos:top_padding="$float:componentPadding"
+                ohos:bottom_padding="4vp"
+                ohos:start_margin="$float:defaultMargin"
+                ohos:end_margin="$float:defaultMargin"
+                ohos:text_alignment="bottom"
+                ohos:vertical_center="true"
+                ohos:text_input_type="pattern_text"
+                ohos:multiple_lines="true"
+                ohos:element_cursor_bubble="#00000000"
+                ohos:text_size="14fp"
+                ohos:text_color="red"
+                ohos:text="$string:invalid_authCode"
+                ohos:visibility="hide" />
+
+            <!-- 输入密码 -->
+            <TextField
+                ohos:id="$+id:passwordText"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:start_padding="$float:defaultPadding"
+                ohos:end_padding="$float:defaultPadding"
+                ohos:top_padding="$float:componentPadding"
+                ohos:bottom_padding="4vp"
+                ohos:start_margin="$float:defaultMargin"
+                ohos:top_margin="$float:defaultMargin"
+                ohos:end_margin="$float:defaultMargin"
+                ohos:text_alignment="bottom"
+                ohos:vertical_center="true"
+                ohos:text_input_type="pattern_password"
+                ohos:multiple_lines="false"
+                ohos:text_size="$float:default_text_size"
+                ohos:element_cursor_bubble="#00000000"
+                ohos:hint="$string:password" />
+
+            <DirectionalLayout
+                ohos:height="1vp"
+                ohos:width="match_parent"
+                ohos:start_margin="$float:maxMargin"
+                ohos:end_margin="$float:maxMargin"
+                ohos:background_element="$color:list_divider_color" />
+
+            <Text
+                ohos:id="$+id:validPassword"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:start_padding="$float:defaultPadding"
+                ohos:end_padding="$float:defaultPadding"
+                ohos:top_padding="$float:componentPadding"
+                ohos:bottom_padding="4vp"
+                ohos:start_margin="$float:defaultMargin"
+                ohos:end_margin="$float:defaultMargin"
+                ohos:text_alignment="bottom"
+                ohos:vertical_center="true"
+                ohos:text_input_type="pattern_text"
+                ohos:multiple_lines="true"
+                ohos:element_cursor_bubble="#00000000"
+                ohos:text_size="14fp"
+                ohos:text_color="red"
+                ohos:text="$string:invalid_password"
+                ohos:visibility="hide" />
+
+            <!-- 输入确认密码 -->
+            <TextField
+                ohos:id="$+id:passwordConfirmText"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:start_padding="$float:defaultPadding"
+                ohos:end_padding="$float:defaultPadding"
+                ohos:top_padding="$float:componentPadding"
+                ohos:bottom_padding="4vp"
+                ohos:start_margin="$float:defaultMargin"
+                ohos:top_margin="$float:defaultMargin"
+                ohos:end_margin="$float:defaultMargin"
+                ohos:text_alignment="bottom"
+                ohos:vertical_center="true"
+                ohos:text_input_type="pattern_password"
+                ohos:multiple_lines="false"
+                ohos:text_size="$float:default_text_size"
+                ohos:element_cursor_bubble="#00000000"
+                ohos:hint="$string:passwordConfirm" />
+
+            <DirectionalLayout
+                ohos:height="1vp"
+                ohos:width="match_parent"
+                ohos:start_margin="$float:maxMargin"
+                ohos:end_margin="$float:maxMargin"
+                ohos:background_element="$color:list_divider_color" />
+
+            <Text
+                ohos:id="$+id:validPasswordConfirm"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:start_padding="$float:defaultPadding"
+                ohos:end_padding="$float:defaultPadding"
+                ohos:top_padding="$float:componentPadding"
+                ohos:bottom_padding="4vp"
+                ohos:start_margin="$float:defaultMargin"
+                ohos:end_margin="$float:defaultMargin"
+                ohos:text_alignment="bottom"
+                ohos:vertical_center="true"
+                ohos:text_input_type="pattern_text"
+                ohos:multiple_lines="true"
+                ohos:element_cursor_bubble="#00000000"
+                ohos:text_size="14fp"
+                ohos:text_color="red"
+                ohos:text="$string:invalid_password_confirm"
+                ohos:visibility="hide" />
+
+            <!-- 找回密码按钮 -->
+            <Button
+                ohos:id="$+id:retrievePassBtn"
+                ohos:height="40vp"
+                ohos:width="match_parent"
+                ohos:start_margin="$float:maxMargin"
+                ohos:end_margin="$float:maxMargin"
+                ohos:top_margin="20vp"
+                ohos:bottom_margin="$float:maxMargin"
+                ohos:text_alignment="center"
+                ohos:text_color="#F2FFFFFF"
+                ohos:text_size="$float:default_text_size"
+                ohos:text="$string:retrievePass"
+                ohos:background_element="$graphic:background_auth_btn" />
+
+        </DirectionalLayout>
+    </ScrollView>
+
+    <!-- 底部导航 -->
+    <DirectionalLayout
+        ohos:id="$+id:retrievePass_bottom"
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:bottom_margin="$float:maxMargin"
+        ohos:align_parent_bottom="true"
+        ohos:orientation="horizontal"
+        ohos:horizontal_center="true">
+
+        <Text
+            ohos:id="$+id:toLogin"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:text_alignment="center"
+            ohos:text_color="#0A59F7"
+            ohos:text_size="14fp"
+            ohos:text="$string:login" />
+
+        <DirectionalLayout
+            ohos:height="match_parent"
+            ohos:width="1vp"
+            ohos:start_margin="8vp"
+            ohos:end_margin="8vp"
+            ohos:background_element="$color:list_divider_color" />
+
+        <Text
+            ohos:id="$+id:toRegister"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:text_alignment="center"
+            ohos:text_color="#0A59F7"
+            ohos:text_size="14fp"
+            ohos:text="$string:register" />
+
+    </DirectionalLayout>
+
+</DependentLayout>

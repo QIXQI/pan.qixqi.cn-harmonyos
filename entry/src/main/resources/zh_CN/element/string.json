@@ -2,91 +2,83 @@
   "string": [
     {
       "name": "app_name",
-      "value": "pan_harmonyos"
-    },
-    {
-      "name": "mainability_description",
-      "value": "Java_Phone_Empty Feature Ability"
+      "value": "鸿蒙网盘"
     },
     {
       "name": "mainability_HelloWorld",
-      "value": "Hello World"
-    },
-    {
-      "name": "authability_description",
-      "value": "Java_Phone_Empty Feature Ability"
+      "value": "你好，世界！"
     },
     {
       "name": "authability_HelloWorld",
-      "value": "Hello Auth"
+      "value": "你好，验证！"
     },
     {
       "name": "auth_titlebar_text",
-      "value": "Authentication"
+      "value": "身份验证"
     },
     {
       "name": "authInfo",
-      "value": "phone/email/username"
+      "value": "手机/邮箱/用户名"
     },
     {
       "name": "phoneNum",
-      "value": "phone number"
+      "value": "手机号"
     },
     {
       "name": "authCode",
-      "value": "auth code"
+      "value": "验证码"
     },
     {
       "name": "getAuthCode",
-      "value": "Get AuthCode"
+      "value": "获取验证码"
     },
     {
       "name": "invalid_authInfo",
-      "value": "invalid authInfo"
+      "value": "验证信息无效"
     },
     {
       "name": "invalid_authCode",
-      "value": "invalid authCode"
+      "value": "验证码无效"
     },
     {
       "name": "invalid_password",
-      "value": "invalid password length"
+      "value": "密码长度无效"
     },
     {
       "name": "invalid_password_confirm",
-      "value": "password not matched"
+      "value": "密码不匹配"
     },
     {
       "name": "invalid_uname",
-      "value": "invalid username"
+      "value": "用户名无效"
     },
     {
       "name": "invalid_phoneNum",
-      "value": "invalid phone number"
+      "value": "手机号无效"
     },
     {
       "name": "password",
-      "value": "password"
+      "value": "密码"
     },
     {
       "name": "passwordConfirm",
-      "value": "confirm password"
+      "value": "确认密码"
     },
     {
       "name": "login",
-      "value": "Login"
+      "value": "登录"
     },
     {
       "name": "register",
-      "value": "Register"
+      "value": "注册"
     },
     {
       "name": "retrievePass",
-      "value": "Retrieve Password"
+      "value": "找回密码"
     },
     {
       "name": "uname",
-      "value": "username"
+      "value": "用户名"
     }
   ]
 }
