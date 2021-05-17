@@ -5,6 +5,22 @@
       "value": "pan_harmonyos"
     },
     {
+      "name": "client_username",
+      "value": "pan.qixqi.cn"
+    },
+    {
+      "name": "client_password",
+      "value": "thisissecretofpan"
+    },
+    {
+      "name": "client_grant_type",
+      "value": "password"
+    },
+    {
+      "name": "client_scope",
+      "value": "mobileclient"
+    },
+    {
       "name": "mainability_description",
       "value": "Java_Phone_Empty Feature Ability"
     },

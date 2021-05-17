@@ -12,7 +12,13 @@
       "releaseType": "Release"
     }
   },
-  "deviceConfig": {},
+  "deviceConfig": {
+    "default": {
+      "network": {
+        "cleartextTraffic": true
+      }
+    }
+  },
   "module": {
     "package": "cn.qixqi.pan",
     "name": ".MyApplication",
@@ -52,6 +58,11 @@
         "label": "$string:app_name",
         "type": "page",
         "launchType": "standard"
+      }
+    ],
+    "reqPermissions": [
+      {
+        "name": "ohos.permission.INTERNET"
       }
     ]
   }

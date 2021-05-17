@@ -11,7 +11,7 @@ public class MainAbility extends Ability {
         super.onStart(intent);
         super.setMainRoute(MainAbilitySlice.class.getName());
 
-        startAuthAbility();
+         startAuthAbility();
     }
 
     private void startAuthAbility(){
@@ -26,32 +26,4 @@ public class MainAbility extends Ability {
         intent.setOperation(operation);
         startAbility(intent);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

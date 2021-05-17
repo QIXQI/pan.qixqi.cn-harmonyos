@@ -1,8 +1,12 @@
 package cn.qixqi.pan.slice;
 
 import cn.qixqi.pan.ResourceTable;
+import cn.qixqi.pan.model.User;
+import cn.qixqi.pan.model.UserBase;
 import cn.qixqi.pan.util.ElementUtil;
+import cn.qixqi.pan.util.HttpUtil;
 import cn.qixqi.pan.util.Toast;
+import com.alibaba.fastjson.JSON;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
 import ohos.agp.components.*;
@@ -14,17 +18,28 @@ import ohos.app.dispatcher.task.TaskPriority;
 import ohos.eventhandler.EventHandler;
 import ohos.eventhandler.EventRunner;
 import ohos.eventhandler.InnerEvent;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogLabel;
+import okhttp3.Call;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class RegisterAbilitySlice extends AbilitySlice {
 
-    private static final String VALID_PHONE_NUM = "19818965587";
+    private static final HiLogLabel LOG_LABEL = new HiLogLabel(3, 0xD001100, RegisterAbilitySlice.class.getName());
+
+    // private static final String VALID_PHONE_NUM = "19818965587";
 
     private static final int REGISTER_SUCCESS = 1000;
     private static final int REGISTER_FAIL = 1001;
+
+    private static final String REGISTER_URL = "http://ali4.qixqi.cn:5555/api/user/v1/user";
 
     private ScrollView registerScroll;
     private Text validUname;
@@ -42,6 +57,7 @@ public class RegisterAbilitySlice extends AbilitySlice {
     private Text loginText;
     private Text retrievePassText;
     private CommonDialog commonDialog;
+    private CommonDialog registerDialog;
 
     @Override
     public void onStart(Intent intent){
@@ -247,7 +263,7 @@ public class RegisterAbilitySlice extends AbilitySlice {
             // 显示注册进度对话框
             showProgress(true);
             // 开一个线程模拟验证注册
-            getGlobalTaskDispatcher(TaskPriority.DEFAULT)
+            /* getGlobalTaskDispatcher(TaskPriority.DEFAULT)
                     .asyncDispatch( () -> {
                         try {
                             Thread.sleep(2000);
@@ -261,7 +277,37 @@ public class RegisterAbilitySlice extends AbilitySlice {
                         } else {
                             registerEventHandler.sendEvent(REGISTER_FAIL);
                         }
-                    });
+                    }); */
+            // 访问后端，完成注册
+            UserBase userBase = new UserBase()
+                    .withUname(uname)
+                    .withPhoneNumber(phoneNum)
+                    .withPassword(password);
+            String userBaseJson = JSON.toJSONString(userBase);
+            HiLog.debug(LOG_LABEL, userBaseJson);
+
+            RequestBody requestBody = RequestBody.create(HttpUtil.JSON, userBaseJson);
+            HttpUtil.post(REGISTER_URL, requestBody, null, null, new okhttp3.Callback(){
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e){
+                    HiLog.error(LOG_LABEL, e.getMessage());
+                    registerEventHandler.sendEvent(REGISTER_FAIL);
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                    String responseStr = response.body().string();
+                    if (response.isSuccessful()){
+                        HiLog.debug(LOG_LABEL, responseStr);
+                        User user = JSON.parseObject(responseStr, User.class);
+                        HiLog.debug(LOG_LABEL, user.toString());
+                        registerEventHandler.sendEvent(REGISTER_SUCCESS);
+                    } else {
+                        HiLog.error(LOG_LABEL, responseStr);
+                        registerEventHandler.sendEvent(REGISTER_FAIL);
+                    }
+                }
+            });
         }
     }
 
@@ -303,6 +349,10 @@ public class RegisterAbilitySlice extends AbilitySlice {
                     switch (event.eventId) {
                         case REGISTER_SUCCESS:
                             showRegisterDialog(true);
+                            getGlobalTaskDispatcher(TaskPriority.DEFAULT)
+                                    .delayDispatch( () -> {
+                                        startLoginSlice();
+                                    }, 2000);
                             break;
                         case REGISTER_FAIL:
                             showRegisterDialog(false);
@@ -312,6 +362,23 @@ public class RegisterAbilitySlice extends AbilitySlice {
                     }
                 }
             };
+
+    /**
+     * 注册成功后，跳转到登录页面
+     */
+    private void startLoginSlice(){
+        // 页面跳转前，释放 registerDialog
+        if (registerDialog != null){
+            registerDialog.destroy();
+            registerDialog = null;
+        }
+
+        Intent intent = new Intent();
+        // 释放掉栈内所有的 Ability，不再返回先前页面
+        // [TODO] 栈内Ability没有释放成功
+        intent.setFlags(Intent.FLAG_ABILITY_CLEAR_MISSION | Intent.FLAG_ABILITY_NEW_MISSION);
+        present(new LoginAbilitySlice(), intent);
+    }
 
     // 表示当前圆形进度动画的旋转量: 0~12
     private int roateNum = 0;
@@ -374,7 +441,7 @@ public class RegisterAbilitySlice extends AbilitySlice {
      */
     private void showRegisterDialog(boolean success){
         // 初始化对话框
-        CommonDialog registerDialog = new CommonDialog(this);
+        registerDialog = new CommonDialog(this);
         // 从xml布局文件获取组件
         Component registerDialogComponent = LayoutScatter.getInstance(this)
                 .parse(ResourceTable.Layout_auth_dialog, null, false);
