@@ -298,6 +298,7 @@
                 ohos:text_color="#F2FFFFFF"
                 ohos:text_size="$float:default_text_size"
                 ohos:text="$string:register"
+                ohos:enabled="true"
                 ohos:background_element="$graphic:background_auth_btn" />
 
         </DirectionalLayout>

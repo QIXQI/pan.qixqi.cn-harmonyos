@@ -129,6 +129,7 @@
                 ohos:text_alignment="center"
                 ohos:text_color="#F2FFFFFF"
                 ohos:text_size="$float:default_text_size"
+                ohos:enabled="true"
                 ohos:text="$string:login"
                 ohos:background_element="$graphic:background_auth_btn" />
 

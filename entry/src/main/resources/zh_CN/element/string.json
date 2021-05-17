@@ -79,6 +79,50 @@
     {
       "name": "uname",
       "value": "用户名"
+    },
+    {
+      "name": "clickedRegister",
+      "value": "您点击了注册！"
+    },
+    {
+      "name": "clickedRetrievePass",
+      "value": "您点击了找回密码！"
+    },
+    {
+      "name": "success",
+      "value": "成功"
+    },
+    {
+      "name": "loginSuccess",
+      "value": "登录成功！"
+    },
+    {
+      "name": "fail",
+      "value": "失败"
+    },
+    {
+      "name": "loginFail",
+      "value": "登录失败！"
+    },
+    {
+      "name": "clickedAuthCodeBtn",
+      "value": "您点击了获取验证码按钮!"
+    },
+    {
+      "name": "registerSuccess",
+      "value": "注册成功!"
+    },
+    {
+      "name": "registerFail",
+      "value": "注册失败!"
+    },
+    {
+      "name": "retrievePassSuccess",
+      "value": "找回密码成功!"
+    },
+    {
+      "name": "retrievePassFail",
+      "value": "找回密码失败!"
     }
   ]
 }

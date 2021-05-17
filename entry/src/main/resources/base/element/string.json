@@ -87,6 +87,50 @@
     {
       "name": "uname",
       "value": "username"
+    },
+    {
+      "name": "clickedRegister",
+      "value": "You clicked the Register!"
+    },
+    {
+      "name": "clickedRetrievePass",
+      "value": "You clicked the RetrievePass!"
+    },
+    {
+      "name": "success",
+      "value": "Success"
+    },
+    {
+      "name": "loginSuccess",
+      "value": "Login Success!"
+    },
+    {
+      "name": "fail",
+      "value": "Fail"
+    },
+    {
+      "name": "loginFail",
+      "value": "Login Fail!"
+    },
+    {
+      "name": "clickedAuthCodeBtn",
+      "value": "You clicked the authCodeBtn!"
+    },
+    {
+      "name": "registerSuccess",
+      "value": "Register Success!"
+    },
+    {
+      "name": "registerFail",
+      "value": "Register Fail!"
+    },
+    {
+      "name": "retrievePassSuccess",
+      "value": "Retrieve Password Success!"
+    },
+    {
+      "name": "retrievePassFail",
+      "value": "Retrieve Password Fail!"
     }
   ]
 }

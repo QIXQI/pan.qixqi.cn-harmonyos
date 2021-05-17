@@ -9,6 +9,6 @@ public class AuthAbility extends Ability {
     @Override
     public void onStart(Intent intent) {
         super.onStart(intent);
-        super.setMainRoute(RegisterAbilitySlice.class.getName());
+        super.setMainRoute(LoginAbilitySlice.class.getName());
     }
 }
