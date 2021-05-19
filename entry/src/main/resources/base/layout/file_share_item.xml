@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DependentLayout
+    xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:height="$float:list_item_height"
+    ohos:width="match_parent"
+    ohos:bottom_padding="$float:list_item_bottom_padding"
+    ohos:top_padding="$float:list_item_top_padding">
+
+    <DirectionalLayout
+        ohos:id="$+id:file_share_img_layout"
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:right_margin="$float:list_item_profile_picture_right_margin"
+        ohos:vertical_center="true">
+
+        <!-- 文件分享图像 -->
+        <Image
+            ohos:id="$+id:file_share_img"
+            ohos:height="match_content"
+            ohos:width="match_content" />
+
+    </DirectionalLayout>
+
+
+    <DirectionalLayout
+        ohos:id="$+id:file_share_info_layout"
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:bottom_margin="$float:list_item_double_line_bottom_margin"
+        ohos:end_of="$id:file_share_img_layout"
+        ohos:orientation="vertical"
+        ohos:vertical_center="true">
+
+        <!-- 分享ID -->
+        <Text
+            ohos:id="$+id:share_id"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alpha="0.9"
+            ohos:multiple_lines="true"
+            ohos:text_alignment="vertical_center|left"
+            ohos:text_size="$float:list_item_main_text_size" />
+
+        <!-- 分享创建时间 -->
+        <Text
+            ohos:id="$+id:share_create_time"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alpha="0.9"
+            ohos:text_alignment="vertical_center|left"
+            ohos:text_size="$float:list_item_aux_text_size" />
+
+    </DirectionalLayout>
+
+    <DirectionalLayout
+        ohos:id="$+id:file_share_check_layout"
+        ohos:height="match_content"
+        ohos:width="match_parent"
+        ohos:alignment="right"
+        ohos:end_of="$id:file_share_info_layout"
+        ohos:orientation="horizontal"
+        ohos:vertical_center="true">
+
+        <!-- 分享有效时间 -->
+        <Text
+            ohos:id="$+id:file_share_active_time"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alpha="0.6"
+            ohos:multiple_lines="true"
+            ohos:right_margin="4vp"
+            ohos:text_size="$float:list_item_right_text_size" />
+
+        <!-- 是否选中按钮 -->
+        <Image
+            ohos:id="$+id:file_share_check"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:image_src="$media:file_uncheck"
+            ohos:layout_alignment="vertical_center" />
+
+    </DirectionalLayout>
+
+    <Component
+        ohos:height="$float:list_item_divider_height"
+        ohos:width="match_parent"
+        ohos:alpha="0.3"
+        ohos:background_element="$graphic:item_divider"
+        ohos:below="$id:file_share_info_layout"
+        ohos:end_of="$id:file_share_img_layout" />
+
+</DependentLayout>

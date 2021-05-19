@@ -85,6 +85,24 @@
             }
           ]
         }
+      },
+      {
+        "orientation": "unspecified",
+        "name": "cn.qixqi.pan.FileSharingAbility",
+        "icon": "$media:icon",
+        "description": "$string:filesharingability_description",
+        "label": "$string:app_name",
+        "type": "page",
+        "launchType": "standard",
+        "metaData": {
+          "customizeData": [
+            {
+              "name": "hwc-theme",
+              "value": "androidhwext:style/Theme.Emui.NoTitleBar",
+              "extra": ""
+            }
+          ]
+        }
       }
     ],
     "reqPermissions": [

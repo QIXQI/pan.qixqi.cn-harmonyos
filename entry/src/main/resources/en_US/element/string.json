@@ -159,6 +159,10 @@
     {
       "name": "file_title",
       "value": "File"
+    },
+    {
+      "name": "share_title",
+      "value": "Share"
     }
   ]
 }

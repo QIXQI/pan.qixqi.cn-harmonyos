@@ -187,6 +187,18 @@
     {
       "name": "file_title",
       "value": "File"
+    },
+    {
+      "name": "filesharingability_description",
+      "value": "Java_Phone_Empty Feature Ability"
+    },
+    {
+      "name": "filesharingability_HelloWorld",
+      "value": "Hello World"
+    },
+    {
+      "name": "share_title",
+      "value": "Share"
     }
   ]
 }

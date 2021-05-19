@@ -6,3 +6,4 @@
 ### [TODO] 标题栏细化
 ### [TODO] SimpleFolderLink 应该还包括 createTime
 ### [TODO] 文件夹列表、文件列表都有滚动回滚效果，冲突了
+### [TODO] 后端 file_share 表应包含 share_name 字段

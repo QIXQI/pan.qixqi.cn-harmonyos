@@ -159,6 +159,10 @@
     {
       "name": "file_title",
       "value": "文件"
+    },
+    {
+      "name": "share_title",
+      "value": "分享"
     }
   ]
 }
