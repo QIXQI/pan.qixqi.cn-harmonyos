@@ -199,6 +199,78 @@
     {
       "name": "share_title",
       "value": "Share"
+    },
+    {
+      "name": "profileability_description",
+      "value": "Java_Phone_Empty Feature Ability"
+    },
+    {
+      "name": "profileability_HelloWorld",
+      "value": "Hello World"
+    },
+    {
+      "name": "title_contactsDetail",
+      "value": "User Name"
+    },
+    {
+      "name": "user_uid",
+      "value": "uid"
+    },
+    {
+      "name": "user_phoneNumber",
+      "value": "phoneNumber"
+    },
+    {
+      "name": "user_uname",
+      "value": "uname"
+    },
+    {
+      "name": "user_password",
+      "value": "password"
+    },
+    {
+      "name": "user_email",
+      "value": "email"
+    },
+    {
+      "name": "user_priorityId",
+      "value": "priorityId"
+    },
+    {
+      "name": "user_statusId",
+      "value": "statusId"
+    },
+    {
+      "name": "user_sex",
+      "value": "sex"
+    },
+    {
+      "name": "user_diskCapacity",
+      "value": "diskCapacity"
+    },
+    {
+      "name": "user_freeDiskCapacity",
+      "value": "freeDiskCapacity"
+    },
+    {
+      "name": "user_birthday",
+      "value": "birthday"
+    },
+    {
+      "name": "user_joinTime",
+      "value": "joinTime"
+    },
+    {
+      "name": "male",
+      "value": "male"
+    },
+    {
+      "name": "female",
+      "value": "female"
+    },
+    {
+      "name": "unknown",
+      "value": "unknown"
     }
   ]
 }

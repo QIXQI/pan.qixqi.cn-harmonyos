@@ -63,6 +63,18 @@
     {
       "name": "app_bar_color",
       "value": "#008577"
+    },
+    {
+      "name": "color_background",
+      "value": "#DCDCDC"
+    },
+    {
+      "name": "color_user_info_primary_text",
+      "value": "#E6000000"
+    },
+    {
+      "name": "color_user_info_secondary_text",
+      "value": "#79000000"
     }
   ]
 }

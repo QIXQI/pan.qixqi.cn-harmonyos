@@ -207,6 +207,114 @@
     {
       "name": "file_size_left_margin",
       "value": "10vp"
+    },
+    {
+      "name": "max_padding_appBar",
+      "value": "12vp"
+    },
+    {
+      "name": "max_padding_start",
+      "value": "24vp"
+    },
+    {
+      "name": "max_padding_end",
+      "value": "24vp"
+    },
+    {
+      "name": "height_backButton_touchTarget",
+      "value": "56vp"
+    },
+    {
+      "name": "height_appBar_Buttons",
+      "value": "24vp"
+    },
+    {
+      "name": "width_appBar_buttons",
+      "value": "24vp"
+    },
+    {
+      "name": "textSize_uname",
+      "value": "20vp"
+    },
+    {
+      "name": "leftMargin_uname",
+      "value": "10vp"
+    },
+    {
+      "name": "height_bottom_tab",
+      "value": "56vp"
+    },
+    {
+      "name": "topMargin_userInfo_upperCard",
+      "value": "150vp"
+    },
+    {
+      "name": "textSize_userInfo_title",
+      "value": "20vp"
+    },
+    {
+      "name": "topMargin_userInfo_title",
+      "value": "60vp"
+    },
+    {
+      "name": "height_userInfo_profile",
+      "value": "108vp"
+    },
+    {
+      "name": "width_userInfo_profile",
+      "value": "108vp"
+    },
+    {
+      "name": "topMargin_userInfo_profile",
+      "value": "100vp"
+    },
+    {
+      "name": "height_user_info_item",
+      "value": "65vp"
+    },
+    {
+      "name": "height_user_info_text",
+      "value": "48vp"
+    },
+    {
+      "name": "bottomMargin_user_info_item",
+      "value": "8vp"
+    },
+    {
+      "name": "topMargin_user_info_item",
+      "value": "8vp"
+    },
+    {
+      "name": "bottomMargin_user_info_item_text",
+      "value": "8vp"
+    },
+    {
+      "name": "textSize_primaryText",
+      "value": "16vp"
+    },
+    {
+      "name": "textSize_secondaryText",
+      "value": "12vp"
+    },
+    {
+      "name": "height_user_info_edit_layout",
+      "value": "48vp"
+    },
+    {
+      "name": "width_user_info_edit_layout",
+      "value": "48vp"
+    },
+    {
+      "name": "height_user_info_edit_img",
+      "value": "24vp"
+    },
+    {
+      "name": "width_user_info_edit_img",
+      "value": "24vp"
+    },
+    {
+      "name": "height_user_info_list_divider",
+      "value": "1vp"
     }
   ]
 }

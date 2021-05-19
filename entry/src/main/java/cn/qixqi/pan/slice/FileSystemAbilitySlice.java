@@ -255,7 +255,16 @@ public class FileSystemAbilitySlice extends AbilitySlice {
             intent.setFlags(Intent.FLAG_ABILITY_CLEAR_MISSION | Intent.FLAG_ABILITY_NEW_MISSION);
             startAbility(intent);
         } else if (position == 2) {
-
+            Intent intent = new Intent();
+            Operation operation = new Intent.OperationBuilder()
+                    .withDeviceId("")
+                    .withBundleName("cn.qixqi.pan")
+                    .withAbilityName("cn.qixqi.pan.ProfileAbility")
+                    .build();
+            intent.setOperation(operation);
+            // 释放掉栈内所有的 Ability，不再返回先前页面
+            intent.setFlags(Intent.FLAG_ABILITY_CLEAR_MISSION | Intent.FLAG_ABILITY_NEW_MISSION);
+            startAbility(intent);
         }
     }
 

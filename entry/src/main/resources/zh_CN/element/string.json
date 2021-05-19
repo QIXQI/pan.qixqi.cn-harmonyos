@@ -163,6 +163,70 @@
     {
       "name": "share_title",
       "value": "分享"
+    },
+    {
+      "name": "title_contactsDetail",
+      "value": "用户名"
+    },
+    {
+      "name": "user_uid",
+      "value": "用户ID"
+    },
+    {
+      "name": "user_phoneNumber",
+      "value": "手机号"
+    },
+    {
+      "name": "user_uname",
+      "value": "用户名"
+    },
+    {
+      "name": "user_password",
+      "value": "密码"
+    },
+    {
+      "name": "user_email",
+      "value": "邮箱"
+    },
+    {
+      "name": "user_priorityId",
+      "value": "权限"
+    },
+    {
+      "name": "user_statusId",
+      "value": "状态"
+    },
+    {
+      "name": "user_sex",
+      "value": "性别"
+    },
+    {
+      "name": "user_diskCapacity",
+      "value": "磁盘总空间"
+    },
+    {
+      "name": "user_freeDiskCapacity",
+      "value": "剩余磁盘空间"
+    },
+    {
+      "name": "user_birthday",
+      "value": "生日"
+    },
+    {
+      "name": "user_joinTime",
+      "value": "加入时间"
+    },
+    {
+      "name": "male",
+      "value": "男"
+    },
+    {
+      "name": "female",
+      "value": "女"
+    },
+    {
+      "name": "unknown",
+      "value": "未知"
     }
   ]
 }

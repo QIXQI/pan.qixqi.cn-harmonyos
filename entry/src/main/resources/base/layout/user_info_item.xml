@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DirectionalLayout
+    xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:id="$+id:user_info_item"
+    ohos:height="$float:height_user_info_item"
+    ohos:width="match_parent"
+    ohos:orientation="vertical">
+    
+    <DirectionalLayout
+        ohos:id="$+id:user_info_layout"
+        ohos:height="$float:height_user_info_text"
+        ohos:width="match_parent"
+        ohos:bottom_margin="$float:bottomMargin_user_info_item"
+        ohos:top_margin="$float:topMargin_user_info_item"
+        ohos:orientation="horizontal">
+
+        <DirectionalLayout
+            ohos:id="$+id:user_info_text"
+            ohos:height="match_parent"
+            ohos:width="match_parent"
+            ohos:alignment="vertical_center"
+            ohos:orientation="vertical"
+            ohos:weight="2">
+
+            <DirectionalLayout
+                ohos:id="$+id:user_info_text_layout"
+                ohos:height="match_parent"
+                ohos:width="match_content"
+                ohos:layout_direction="locale">
+
+                <!-- 值，如00000000-0000-0000-000000000000 -->
+                <Text
+                    ohos:id="$+id:valueText"
+                    ohos:height="match_content"
+                    ohos:width="match_parent"
+                    ohos:bottom_margin="$float:bottomMargin_user_info_item_text"
+                    ohos:layout_direction="locale"
+                    ohos:text_color="$color:color_user_info_primary_text"
+                    ohos:text_size="$float:textSize_primaryText" />
+
+                <!-- 键，如uid -->
+                <Text
+                    ohos:id="$+id:keyText"
+                    ohos:height="match_content"
+                    ohos:width="match_parent"
+                    ohos:layout_direction="locale"
+                    ohos:text_color="$color:color_user_info_secondary_text"
+                    ohos:text_size="$float:textSize_secondaryText" />
+
+            </DirectionalLayout>
+        </DirectionalLayout>
+
+        <DirectionalLayout
+            ohos:id="$+id:user_info_edit_img_layout"
+            ohos:height="match_parent"
+            ohos:width="match_parent"
+            ohos:alignment="vertical_center|right"
+            ohos:orientation="horizontal"
+            ohos:right_of="$id:user_info_text"
+            ohos:weight="1">
+
+            <DirectionalLayout
+                ohos:height="$float:height_user_info_edit_layout"
+                ohos:width="$float:width_user_info_edit_layout"
+                ohos:alignment="center">
+
+                <Image
+                    ohos:id="$+id:user_info_edit_img"
+                    ohos:height="$float:height_user_info_edit_img"
+                    ohos:width="$float:width_user_info_edit_img" />
+
+            </DirectionalLayout>
+        </DirectionalLayout>
+    </DirectionalLayout>
+
+    <Image
+        ohos:height="$float:list_item_divider_height"
+        ohos:width="match_parent"
+        ohos:image_src="$graphic:item_divider_profile" />
+
+</DirectionalLayout>

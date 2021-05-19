@@ -3,62 +3,58 @@ package cn.qixqi.pan.slice;
 import cn.qixqi.pan.MyApplication;
 import cn.qixqi.pan.ResourceTable;
 import cn.qixqi.pan.dao.TokenDao;
+import cn.qixqi.pan.dao.UserDao;
 import cn.qixqi.pan.dao.impl.TokenDaoImpl;
+import cn.qixqi.pan.dao.impl.UserDaoImpl;
 import cn.qixqi.pan.datamodel.BottomBarItemInfo;
-import cn.qixqi.pan.datamodel.FileShareItemInfo;
-import cn.qixqi.pan.model.FileShare;
+import cn.qixqi.pan.datamodel.UserInfoItemInfo;
+import cn.qixqi.pan.model.User;
 import cn.qixqi.pan.util.ElementUtil;
-import cn.qixqi.pan.util.HttpUtil;
 import cn.qixqi.pan.util.Toast;
 import cn.qixqi.pan.view.BottomBarItemView;
-import cn.qixqi.pan.view.FileShareItemView;
-import cn.qixqi.pan.view.adapter.FileShareItemProvider;
-import com.alibaba.fastjson.JSON;
+import cn.qixqi.pan.view.UserInfoItemView;
+import cn.qixqi.pan.view.adapter.UserInfoItemProvider;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
 import ohos.aafwk.content.Operation;
 import ohos.agp.components.*;
 import ohos.agp.utils.Color;
-import ohos.app.dispatcher.TaskDispatcher;
 import ohos.hiviewdfx.HiLog;
 import ohos.hiviewdfx.HiLogLabel;
-import okhttp3.Call;
-import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
-public class FileSharingAbilitySlice extends AbilitySlice {
+public class ProfileAbilitySlice extends AbilitySlice {
 
-    private static final HiLogLabel LOG_LABEL = new HiLogLabel(3, 0xD001100, FileSharingAbilitySlice.class.getName());
-    private static final String GET_FILE_SHARE_URL = "http://ali4.qixqi.cn:5555/api/filesharing/v1/filesharing/fileShare/user";
+    private static final HiLogLabel LOG_LABEL = new HiLogLabel(3, 0xD001100, ProfileAbilitySlice.class.getName());
 
     // ListContainer 弹性回滚效果参数
     private static final int OVER_SCROLL_PERCENT = 40;
     private static final float OVER_SCROLL_RATE = 0.6f;
     private static final int REMAIN_VISIBLE_PERCENT = 20;
 
+    private static final int LIST_ITEM_HEIGHT = 65;
+    private static final int LIST_LEN = 12;
+    // [TODO] 为什么 LIST_ITEM_TYPE 等于2的时候效果比较好
+    private static final int LIST_ITEM_TYPE = 2;
+
     private TokenDao tokenDao;
-    private List<FileShare> fileShares;
+    private UserDao userDao;
     private AbilitySlice abilitySlice;
+    private User user;
 
-    private ListContainer fileSharesContainer;
-    private FileShareItemProvider fileShareItemProvider;
+    private Text uname;
 
-    private Text title;
-    private DirectionalLayout downloadItemLayout;
-    private DirectionalLayout uploadItemLayout;
+    private ListContainer userInfoContainer;
+    private UserInfoItemProvider userInfoItemProvider;
 
     private List<BottomBarItemInfo> bottomBarItemInfoList;
 
     @Override
     public void onStart(Intent intent) {
         super.onStart(intent);
-        super.setUIContent(ResourceTable.Layout_ability_file_sharing);
+        super.setUIContent(ResourceTable.Layout_ability_profile);
 
         abilitySlice = this;
 
@@ -66,93 +62,41 @@ public class FileSharingAbilitySlice extends AbilitySlice {
         this.getWindow().setNavigationBarColor(ElementUtil.getColor(this, ResourceTable.Color_colorSubBackground));
 
         tokenDao = new TokenDaoImpl(MyApplication.getAppContext());
+        userDao = new UserDaoImpl(MyApplication.getAppContext());
+        user = userDao.get();
+        // [TODO] 很神奇，该条日志不输出
+        // HiLog.debug(LOG_LABEL, user.toString());
+
         initView();
-        initListener();
 
         // 设置底部导航栏
         setBottomToolBar();
-
-        getFileShare();
     }
 
     /**
      * 初始化控件和布局
      */
     private void initView(){
-        fileSharesContainer = (ListContainer) findComponentById(ResourceTable.Id_file_share_container);
-        // **********标题栏*************
-        title = (Text) findComponentById(ResourceTable.Id_title);
-        title.setText(ResourceTable.String_share_title);
-        downloadItemLayout = (DirectionalLayout) findComponentById(ResourceTable.Id_download_item_layout);
-        uploadItemLayout = (DirectionalLayout) findComponentById(ResourceTable.Id_upload_item_layout);
+        uname = (Text) findComponentById(ResourceTable.Id_uname);
+        uname.setText(user.getUname());
+
+        userInfoContainer = (ListContainer) findComponentById(ResourceTable.Id_user_info_container);
+        userInfoContainer.setHeight(AttrHelper.vp2px(LIST_ITEM_HEIGHT, this) * LIST_LEN * LIST_ITEM_TYPE);
+        setListContainer();
     }
 
     /**
-     * 初始化监听器
-     */
-    private void initListener(){
-        // **********标题栏*************
-        // 标题文本点击事件
-        title.setClickedListener( component -> {
-            Toast.makeToast(abilitySlice, "点击标题", Toast.TOAST_SHORT).show();
-        });
-        // downloadItemLayout 点击事件
-        downloadItemLayout.setClickedListener(component -> {
-            Toast.makeToast(abilitySlice, "点击downloadItemLayout", Toast.TOAST_SHORT).show();
-        });
-        // 点击 uploadItemLayout
-        uploadItemLayout.setClickedListener( component -> {
-            Toast.makeToast(abilitySlice, "点击uploadItemLayout", Toast.TOAST_SHORT).show();
-        });
-    }
-
-    /**
-     * 访问后端，获取用户文件分享列表
-     */
-    private void getFileShare(){
-        String accessToken = tokenDao.get().getAccessToken();
-        Map<String, String> addHeaders = new HashMap<>();
-        String Authorization = String.format("Bearer %s", accessToken);
-        addHeaders.put("Authorization", Authorization);
-        HttpUtil.get(GET_FILE_SHARE_URL, null, addHeaders, new okhttp3.Callback(){
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e){
-                HiLog.error(LOG_LABEL, e.getMessage());
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
-                String responseStr = response.body().string();
-                if (response.isSuccessful()){
-                    HiLog.debug(LOG_LABEL, responseStr);
-                    fileShares = JSON.parseArray(responseStr, FileShare.class);
-                    HiLog.debug(LOG_LABEL, fileShares.toString());
-
-                    // 设置 ListContainer
-                    // 在主线程(UI线程)中执行
-                    TaskDispatcher uiTaskDispatcher = getUITaskDispatcher();
-                    uiTaskDispatcher.asyncDispatch(() -> {
-                        setListContainer();
-                    });
-                } else {
-                    HiLog.error(LOG_LABEL, responseStr);
-                }
-            }
-        });
-    }
-
-    /**
-     * 获取文件分享列表后，设置 ListContainer
+     * 设置 ListContainer
      */
     private void setListContainer(){
-        if (fileShares == null){
-            HiLog.warn(LOG_LABEL, "fileShares 为空");
+        if (user == null){
+            HiLog.error(LOG_LABEL, "user 为空");
             return;
         }
-        FileShareItemView fileShareItemView = new FileShareItemView(fileShares);
-        fileShareItemProvider = new FileShareItemProvider(fileShareItemView.getFileShareItemInfos());
+        UserInfoItemView userInfoItemView = new UserInfoItemView(user, abilitySlice);
+        userInfoItemProvider = new UserInfoItemProvider(userInfoItemView.getUserInfoItemInfos(), abilitySlice);
 
-        fileSharesContainer.setItemProvider(fileShareItemProvider);
+        userInfoContainer.setItemProvider(userInfoItemProvider);
 
         // 设置 ListContainer 的事件监听器
         setListClickListener();
@@ -165,10 +109,10 @@ public class FileSharingAbilitySlice extends AbilitySlice {
      * 设置 ListContainer 的事件监听器
      */
     private void setListClickListener(){
-        // fileSharesContainer 子项单击事件
-        fileSharesContainer.setItemClickedListener( (listContainer, component, position, id) -> {
-            FileShareItemInfo fileShareItemInfo = (FileShareItemInfo) fileShareItemProvider.getItem(position);
-            Toast.makeToast(abilitySlice, fileShareItemInfo.toString(), Toast.TOAST_SHORT).show();
+        // userInfoContainer 子项单击事件
+        userInfoContainer.setItemClickedListener( (listContainer, component, position, id) -> {
+            UserInfoItemInfo userInfoItemInfo = (UserInfoItemInfo) userInfoItemProvider.getItem(position);
+            Toast.makeToast(abilitySlice, userInfoItemInfo.toString(), Toast.TOAST_LONG).show();
         });
     }
 
@@ -176,8 +120,8 @@ public class FileSharingAbilitySlice extends AbilitySlice {
      * 设置文件列表回滚动画
      */
     private void setListReboundAnimation(){
-        fileSharesContainer.setReboundEffect(true);
-        fileSharesContainer.setReboundEffectParams(OVER_SCROLL_PERCENT, OVER_SCROLL_RATE, REMAIN_VISIBLE_PERCENT);
+        userInfoContainer.setReboundEffect(true);
+        userInfoContainer.setReboundEffectParams(OVER_SCROLL_PERCENT, OVER_SCROLL_RATE, REMAIN_VISIBLE_PERCENT);
     }
 
     /**
@@ -195,7 +139,7 @@ public class FileSharingAbilitySlice extends AbilitySlice {
                     bottomBarItemInfoList.get(position).getBnavImgId());
             Text text = (Text) bottomItemLayout.findComponentById(
                     bottomBarItemInfoList.get(position).getBnavTextId());
-            if (position == 1){
+            if (position == 2){
                 // 设为选中
                 image.setImageAndDecodeBounds(
                         bottomBarItemInfoList.get(position).getBnavActivatedImgSrcId());
@@ -234,18 +178,18 @@ public class FileSharingAbilitySlice extends AbilitySlice {
             intent.setFlags(Intent.FLAG_ABILITY_CLEAR_MISSION | Intent.FLAG_ABILITY_NEW_MISSION);
             startAbility(intent);
         } else if (position == 1){
-            return;
-        } else if (position == 2) {
             Intent intent = new Intent();
             Operation operation = new Intent.OperationBuilder()
                     .withDeviceId("")
                     .withBundleName("cn.qixqi.pan")
-                    .withAbilityName("cn.qixqi.pan.ProfileAbility")
+                    .withAbilityName("cn.qixqi.pan.FileSharingAbility")
                     .build();
             intent.setOperation(operation);
             // 释放掉栈内所有的 Ability，不再返回先前页面
             intent.setFlags(Intent.FLAG_ABILITY_CLEAR_MISSION | Intent.FLAG_ABILITY_NEW_MISSION);
             startAbility(intent);
+        } else if (position == 2) {
+            return;
         }
     }
 

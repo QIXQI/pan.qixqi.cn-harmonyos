@@ -103,6 +103,24 @@
             }
           ]
         }
+      },
+      {
+        "orientation": "unspecified",
+        "name": "cn.qixqi.pan.ProfileAbility",
+        "icon": "$media:icon",
+        "description": "$string:profileability_description",
+        "label": "$string:app_name",
+        "type": "page",
+        "launchType": "standard",
+        "metaData": {
+          "customizeData": [
+            {
+              "name": "hwc-theme",
+              "value": "androidhwext:style/Theme.Emui.NoTitleBar",
+              "extra": ""
+            }
+          ]
+        }
       }
     ],
     "reqPermissions": [
