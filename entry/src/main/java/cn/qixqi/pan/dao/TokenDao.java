@@ -10,4 +10,5 @@ public interface TokenDao {
     void save(Token token);
     void delete();
     Token get();
+    boolean exist();
 }

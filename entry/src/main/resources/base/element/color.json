@@ -31,6 +31,38 @@
     {
       "name": "primary_default",
       "value": "#000000"
+    },
+    {
+      "name": "search_bar_font",
+      "value": "#99000000"
+    },
+    {
+      "name": "colorSecondary",
+      "value": "#99000000"
+    },
+    {
+      "name": "colorSearchBarBackground",
+      "value": "#0C000000"
+    },
+    {
+      "name": "title_layout_background_color",
+      "value": "#F2FFFFFF"
+    },
+    {
+      "name": "title_text_color",
+      "value": "#E6000000"
+    },
+    {
+      "name": "bottom_bar_background_color",
+      "value": "#F2FAFAFA"
+    },
+    {
+      "name": "item_divider_color",
+      "value": "#aaaaaa"
+    },
+    {
+      "name": "app_bar_color",
+      "value": "#008577"
     }
   ]
 }

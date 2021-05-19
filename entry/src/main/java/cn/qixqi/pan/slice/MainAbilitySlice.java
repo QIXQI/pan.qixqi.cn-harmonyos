@@ -1,7 +1,10 @@
 package cn.qixqi.pan.slice;
 
+import cn.qixqi.pan.MyApplication;
 import cn.qixqi.pan.ResourceTable;
+import cn.qixqi.pan.dao.TokenDao;
 import cn.qixqi.pan.dao.UserDao;
+import cn.qixqi.pan.dao.impl.TokenDaoImpl;
 import cn.qixqi.pan.dao.impl.UserDaoImpl;
 import cn.qixqi.pan.model.User;
 import cn.qixqi.pan.util.HttpUtil;
@@ -9,6 +12,7 @@ import cn.qixqi.pan.util.Toast;
 import com.alibaba.fastjson.JSON;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
+import ohos.aafwk.content.Operation;
 import ohos.agp.components.Text;
 import ohos.app.dispatcher.TaskDispatcher;
 import ohos.hiviewdfx.HiLog;
@@ -28,6 +32,7 @@ public class MainAbilitySlice extends AbilitySlice {
 
     private static final HiLogLabel LOG_LABEL = new HiLogLabel(3, 0xD001100, MainAbilitySlice.class.getName());
     private UserDao userDao;
+    private TokenDao tokenDao;
     private Text text;
 
     @Override
@@ -36,8 +41,42 @@ public class MainAbilitySlice extends AbilitySlice {
         super.setUIContent(ResourceTable.Layout_ability_main);
 
         text = (Text) findComponentById(ResourceTable.Id_text_helloworld);
-        userDao = new UserDaoImpl(getContext());
-        testOkHttp3();
+        userDao = new UserDaoImpl(MyApplication.getAppContext());
+        // testOkHttp3();
+
+        tokenDao = new TokenDaoImpl(MyApplication.getAppContext());
+        if (tokenDao.exist()){
+            HiLog.debug(LOG_LABEL, "令牌存在，跳转到文件系统页面");
+            startFileSystemAbility();
+        } else {
+            // 不存在令牌，跳转到登录页面
+            HiLog.debug(LOG_LABEL, "不存在令牌，跳转到登录页面");
+            startAuthAbility();
+        }
+    }
+
+    private void startAuthAbility(){
+        Intent intent = new Intent();
+        // 构造 Operation 对象
+        Operation operation = new Intent.OperationBuilder()
+                .withDeviceId("")
+                .withBundleName("cn.qixqi.pan")
+                .withAbilityName("cn.qixqi.pan.AuthAbility")
+                .build();
+        // intent 设置 Operation
+        intent.setOperation(operation);
+        startAbility(intent);
+    }
+
+    private void startFileSystemAbility(){
+        Intent intent = new Intent();
+        Operation operation = new Intent.OperationBuilder()
+                .withDeviceId("")
+                .withBundleName("cn.qixqi.pan")
+                .withAbilityName("cn.qixqi.pan.FileSystemAbility")
+                .build();
+        intent.setOperation(operation);
+        startAbility(intent);
     }
 
     // java.lang.IllegalStateException: Attempt to update UI in non-UI thread

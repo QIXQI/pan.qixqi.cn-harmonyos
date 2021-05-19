@@ -57,7 +57,34 @@
         "description": "$string:authability_description",
         "label": "$string:app_name",
         "type": "page",
-        "launchType": "standard"
+        "launchType": "standard",
+        "metaData": {
+          "customizeData": [
+            {
+              "name": "hwc-theme",
+              "value": "androidhwext:style/Theme.Emui.NoTitleBar",
+              "extra": ""
+            }
+          ]
+        }
+      },
+      {
+        "orientation": "unspecified",
+        "name": "cn.qixqi.pan.FileSystemAbility",
+        "icon": "$media:icon",
+        "description": "$string:filesystemability_description",
+        "label": "$string:app_name",
+        "type": "page",
+        "launchType": "standard",
+        "metaData": {
+          "customizeData": [
+            {
+              "name": "hwc-theme",
+              "value": "androidhwext:style/Theme.Emui.NoTitleBar",
+              "extra": ""
+            }
+          ]
+        }
       }
     ],
     "reqPermissions": [

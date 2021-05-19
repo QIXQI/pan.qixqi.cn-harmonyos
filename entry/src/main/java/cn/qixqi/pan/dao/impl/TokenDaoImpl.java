@@ -5,6 +5,7 @@ import cn.qixqi.pan.model.Token;
 import ohos.app.Context;
 import ohos.data.DatabaseHelper;
 import ohos.data.preferences.Preferences;
+import ohos.hiviewdfx.HiLog;
 import ohos.hiviewdfx.HiLogLabel;
 
 public class TokenDaoImpl implements TokenDao {
@@ -54,5 +55,12 @@ public class TokenDaoImpl implements TokenDao {
                 .withScope(scope)
                 .withUid(uid)
                 .withJti(jti);
+    }
+
+    @Override
+    public boolean exist(){
+        HiLog.debug(LOG_LABEL, get().toString());
+        String accessToken = preferences.getString("accessToken", null);
+        return accessToken == null ? false : true;
     }
 }

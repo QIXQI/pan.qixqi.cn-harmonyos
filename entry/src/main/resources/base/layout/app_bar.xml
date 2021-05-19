@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 应用程序标题栏 -->
+<StackLayout
+    xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:height="match_content"
+    ohos:width="match_parent">
+
+    <!-- 标题 -->
+    <DirectionalLayout
+        ohos:id="$+id:title_layout"
+        ohos:height="$float:title_layout_height"
+        ohos:width="match_parent"
+        ohos:alignment="left|bottom"
+        ohos:background_element="$color:title_layout_background_color"
+        ohos:orientation="vertical">
+
+        <Text
+            ohos:id="$+id:title"
+            ohos:height="$float:title_text_background_height"
+            ohos:width="match_content"
+            ohos:bottom_margin="$float:title_text_bottom_margin"
+            ohos:bottom_padding="$float:title_text_bottom_padding"
+            ohos:component_description="$string:title_item_description"
+            ohos:left_padding="$float:title_text_left_padding"
+            ohos:text="$string:title_text"
+            ohos:text_alignment="vertical_center"
+            ohos:text_color="$color:title_text_color"
+            ohos:text_size="$float:title_text_size"
+            ohos:top_padding="$float:title_text_top_padding"
+            />
+    </DirectionalLayout>
+
+    <!-- 按钮布局 -->
+    <DirectionalLayout
+        ohos:id="$+id:head_button_layout"
+        ohos:height="$float:head_button_layout_height"
+        ohos:width="match_parent"
+        ohos:alignment="vertical_center|right"
+        ohos:orientation="horizontal"
+        ohos:right_margin="$float:head_button_layout_right_margin">
+
+        <!-- download_item -->
+        <DirectionalLayout
+            ohos:id="$+id:download_item_layout"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alignment="center"
+            ohos:component_description="$string:nav_download_description"
+            ohos:left_margin="$float:head_button_left_margin"
+            ohos:orientation="horizontal"
+            ohos:right_margin="$float:head_button_right_margin">
+
+            <Image
+                ohos:id="$+id:download_item"
+                ohos:height="$float:head_button_image_height"
+                ohos:width="$float:head_button_image_width"
+                ohos:alpha="0.9"
+                ohos:image_src="$media:nav_download" />
+
+        </DirectionalLayout>
+
+        <!-- upload_item -->
+        <DirectionalLayout
+            ohos:id="$+id:upload_item_layout"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alignment="center"
+            ohos:component_description="$string:nav_upload_description"
+            ohos:left_margin="$float:head_button_left_margin"
+            ohos:orientation="horizontal"
+            ohos:right_margin="$float:head_button_right_margin">
+
+            <Image
+                ohos:id="$+id:upload_item"
+                ohos:height="$float:head_button_image_height"
+                ohos:width="$float:head_button_image_width"
+                ohos:alpha="0.9"
+                ohos:image_src="$media:nav_upload" />
+
+        </DirectionalLayout>
+
+    </DirectionalLayout>
+
+</StackLayout>

@@ -123,6 +123,42 @@
     {
       "name": "retrievePassFail",
       "value": "找回密码失败!"
+    },
+    {
+      "name": "search_bar_hint_text",
+      "value": "查找"
+    },
+    {
+      "name": "title_text",
+      "value": "标题"
+    },
+    {
+      "name": "title_item_description",
+      "value": "标题按钮"
+    },
+    {
+      "name": "nav_download_description",
+      "value": "获取上传下载文件按钮"
+    },
+    {
+      "name": "nav_upload_description",
+      "value": "上传更多文件"
+    },
+    {
+      "name": "bnav_folder_txt",
+      "value": "文件"
+    },
+    {
+      "name": "bnav_share_txt",
+      "value": "分享"
+    },
+    {
+      "name": "bnav_profile_txt",
+      "value": "我"
+    },
+    {
+      "name": "file_title",
+      "value": "文件"
     }
   ]
 }

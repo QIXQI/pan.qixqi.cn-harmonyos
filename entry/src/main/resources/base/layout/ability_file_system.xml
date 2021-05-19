@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DependentLayout
+    xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:height="match_content"
+    ohos:width="match_parent">
+
+    <!-- 自定义标题栏 -->
+    <include
+        ohos:id="$+id:app_bar"
+        ohos:height="match_content"
+        ohos:width="match_parent"
+        ohos:layout="$layout:app_bar"/>
+
+    <!-- 搜索框 -->
+    <include
+        ohos:id="$+id:search_bar"
+        ohos:height="match_content"
+        ohos:width="match_parent"
+        ohos:layout="$layout:search_bar"
+        ohos:below="$id:app_bar"
+        ohos:left_margin="$float:list_layout_left_margin"
+        ohos:right_margin="$float:list_layout_right_margin"
+        />
+
+    <!-- 文件夹列表 -->
+    <DirectionalLayout
+        ohos:id="$+id:folders_layout"
+        ohos:height="match_content"
+        ohos:width="match_parent"
+        ohos:below="$id:search_bar"
+        ohos:left_margin="$float:list_layout_left_margin"
+        ohos:right_margin="$float:list_layout_right_margin"
+        ohos:orientation="vertical">
+
+        <ListContainer
+            ohos:id="$+id:folders_container"
+            ohos:height="match_content"
+            ohos:width="match_parent"
+            ohos:long_click_enabled="true" />
+
+    </DirectionalLayout>
+
+    <!-- 文件列表 -->
+    <DirectionalLayout
+        ohos:id="$+id:files_layout"
+        ohos:height="match_content"
+        ohos:width="match_parent"
+        ohos:below="$id:folders_layout"
+        ohos:bottom_margin="$float:list_layout_bottom_margin"
+        ohos:left_margin="$float:list_layout_left_margin"
+        ohos:right_margin="$float:list_layout_right_margin"
+        ohos:orientation="vertical">
+
+        <ListContainer
+            ohos:id="$+id:files_container"
+            ohos:height="match_content"
+            ohos:width="match_parent"
+            ohos:long_click_enabled="true" />
+
+    </DirectionalLayout>
+
+    <!-- 底部导航栏 -->
+    <include
+        ohos:id="$+id:bottom_bar"
+        ohos:height="$float:bottom_bar_height"
+        ohos:layout="$layout:bottom_bar"
+        ohos:width="match_parent"
+        ohos:align_parent_bottom="true"
+        ohos:alignment="vertical_center"
+        ohos:background_element="$color:bottom_bar_background_color"
+        ohos:orientation="horizontal"/>
+
+</DependentLayout>

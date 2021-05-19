@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DirectionalLayout
+    xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:height="$float:bottom_bar_height"
+    ohos:width="match_parent"
+    ohos:background_element="$color:bottom_bar_background_color"
+    ohos:orientation="horizontal">
+
+    <!-- 文件列表 -->
+    <DirectionalLayout
+        ohos:id="$+id:bnav_folder"
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:alignment="horizontal_center"
+        ohos:orientation="vertical"
+        ohos:visibility="hide"
+        ohos:weight="1">
+
+        <Image
+            ohos:id="$+id:bnav_folder_img"
+            ohos:image_src="$media:bnav_folder"
+            ohos:height="$float:bnav_image_height"
+            ohos:width="$float:bnav_image_width"
+            ohos:alpha="0.9"
+            ohos:scale_x="1"
+            ohos:scale_y="1" />
+
+        <Text
+            ohos:id="$+id:bnav_folder_txt"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alpha="0.95"
+            ohos:text_size="$float:bottom_item_text_size"
+            ohos:text="$string:bnav_folder_txt" />
+
+    </DirectionalLayout>
+
+    <!-- 分享列表 -->
+    <DirectionalLayout
+        ohos:id="$+id:bnav_share"
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:alignment="horizontal_center"
+        ohos:orientation="vertical"
+        ohos:visibility="hide"
+        ohos:weight="1">
+
+        <Image
+            ohos:id="$+id:bnav_share_img"
+            ohos:image_src="$media:bnav_share"
+            ohos:height="$float:bnav_image_height"
+            ohos:width="$float:bnav_image_width"
+            ohos:alpha="0.9"
+            ohos:scale_x="1"
+            ohos:scale_y="1" />
+
+        <Text
+            ohos:id="$+id:bnav_share_txt"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alpha="0.95"
+            ohos:text_size="$float:bottom_item_text_size"
+            ohos:text="$string:bnav_share_txt" />
+
+    </DirectionalLayout>
+
+    <!-- 个人信息 -->
+    <DirectionalLayout
+        ohos:id="$+id:bnav_profile"
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:alignment="horizontal_center"
+        ohos:orientation="vertical"
+        ohos:visibility="hide"
+        ohos:weight="1">
+
+        <Image
+            ohos:id="$+id:bnav_profile_img"
+            ohos:image_src="$media:bnav_profile"
+            ohos:height="$float:bnav_image_height"
+            ohos:width="$float:bnav_image_width"
+            ohos:alpha="0.9"
+            ohos:scale_x="1"
+            ohos:scale_y="1" />
+
+        <Text
+            ohos:id="$+id:bnav_profile_txt"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alpha="0.95"
+            ohos:text_size="$float:bottom_item_text_size"
+            ohos:text="$string:bnav_profile_txt" />
+
+    </DirectionalLayout>
+
+</DirectionalLayout>

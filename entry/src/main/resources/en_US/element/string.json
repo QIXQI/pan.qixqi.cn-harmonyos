@@ -123,6 +123,42 @@
     {
       "name": "retrievePassFail",
       "value": "Retrieve Password Fail!"
+    },
+    {
+      "name": "search_bar_hint_text",
+      "value": "search file"
+    },
+    {
+      "name": "title_text",
+      "value": "Title"
+    },
+    {
+      "name": "title_item_description",
+      "value": "Title Button"
+    },
+    {
+      "name": "nav_download_description",
+      "value": "Get Download and Upload File Button"
+    },
+    {
+      "name": "nav_upload_description",
+      "value": "Upload more file"
+    },
+    {
+      "name": "bnav_folder_txt",
+      "value": "File"
+    },
+    {
+      "name": "bnav_share_txt",
+      "value": "Share"
+    },
+    {
+      "name": "bnav_profile_txt",
+      "value": "Profile"
+    },
+    {
+      "name": "file_title",
+      "value": "File"
     }
   ]
 }

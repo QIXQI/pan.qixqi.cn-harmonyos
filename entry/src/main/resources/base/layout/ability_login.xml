@@ -8,7 +8,7 @@
     <include
         ohos:id="$+id:title_bar"
         ohos:height="$float:defaultHeight"
-        ohos:layout="$layout:title_bar_auth"
+        ohos:layout="$layout:auth_title_bar_auth"
         ohos:width="match_parent"
         ohos:align_parent_top="true" />
 

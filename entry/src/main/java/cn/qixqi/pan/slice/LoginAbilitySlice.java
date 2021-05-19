@@ -1,5 +1,6 @@
 package cn.qixqi.pan.slice;
 
+import cn.qixqi.pan.MyApplication;
 import cn.qixqi.pan.ResourceTable;
 import cn.qixqi.pan.dao.TokenDao;
 import cn.qixqi.pan.dao.UserDao;
@@ -72,8 +73,9 @@ public class LoginAbilitySlice extends AbilitySlice {
         this.getWindow().setStatusBarColor(ElementUtil.getColor(this, ResourceTable.Color_colorSubBackground));
         this.getWindow().setNavigationBarColor(ElementUtil.getColor(this, ResourceTable.Color_colorSubBackground));
 
-        tokenDao = new TokenDaoImpl(getContext());
-        userDao = new UserDaoImpl(getContext());
+        tokenDao = new TokenDaoImpl(MyApplication.getAppContext());
+        // tokenDao.exist();
+        userDao = new UserDaoImpl(MyApplication.getAppContext());
 
         initAuthorization();
         initView();
@@ -241,6 +243,7 @@ public class LoginAbilitySlice extends AbilitySlice {
                         // 保存令牌
                         Token token = JSON.parseObject(responseStr, Token.class);
                         tokenDao.save(token);
+                        HiLog.debug(LOG_LABEL, tokenDao.get().toString());
                         // 获取用户信息
                         getUserInfo(token.getAccessToken(), token.getUid());
                         // 返回登录成功结果
