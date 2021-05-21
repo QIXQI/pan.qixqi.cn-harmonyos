@@ -98,7 +98,17 @@ public class FileSharingAbilitySlice extends AbilitySlice {
         });
         // downloadItemLayout 点击事件
         downloadItemLayout.setClickedListener(component -> {
-            Toast.makeToast(abilitySlice, "点击downloadItemLayout", Toast.TOAST_SHORT).show();
+            // Toast.makeToast(abilitySlice, "点击downloadItemLayout", Toast.TOAST_SHORT).show();
+            Intent intent = new Intent();
+            Operation operation = new Intent.OperationBuilder()
+                    .withDeviceId("")
+                    .withBundleName("cn.qixqi.pan")
+                    .withAbilityName("cn.qixqi.pan.FileHistoryAbility")
+                    .build();
+            intent.setOperation(operation);
+            // 释放掉栈内所有的 Ability，不再返回先前页面
+            intent.setFlags(Intent.FLAG_ABILITY_CLEAR_MISSION | Intent.FLAG_ABILITY_NEW_MISSION);
+            startAbility(intent);
         });
         // 点击 uploadItemLayout
         uploadItemLayout.setClickedListener( component -> {

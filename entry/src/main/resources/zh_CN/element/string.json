@@ -227,6 +227,14 @@
     {
       "name": "unknown",
       "value": "未知"
+    },
+    {
+      "name": "title_file_download",
+      "value": "下载列表"
+    },
+    {
+      "name": "title_file_upload",
+      "value": "上传列表"
     }
   ]
 }

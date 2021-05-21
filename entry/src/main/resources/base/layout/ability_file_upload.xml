@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DependentLayout
+    xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:height="match_parent"
+    ohos:width="match_parent"
+    ohos:orientation="vertical">
+
+    <!-- 自定义标题栏 -->
+    <DirectionalLayout
+        ohos:id="$+id:appBar"
+        ohos:height="match_content"
+        ohos:width="match_parent"
+        ohos:align_parent_top="true"
+        ohos:end_padding="$float:max_padding_appBar"
+        ohos:layout_direction="locale"
+        ohos:orientation="horizontal"
+        ohos:start_padding="$float:max_padding_start">
+
+        <!-- 返回按钮 -->
+        <DirectionalLayout
+            ohos:id="$+id:appBar_back"
+            ohos:height="$float:height_backButton_touchTarget"
+            ohos:width="0vp"
+            ohos:alignment="center"
+            ohos:orientation="horizontal"
+            ohos:weight="1">
+
+            <Image
+                ohos:id="$+id:appBar_backImg"
+                ohos:height="$float:height_appBar_Buttons"
+                ohos:width="$float:width_appBar_buttons"
+                ohos:image_src="$graphic:icon_back"/>
+
+            <Text
+                ohos:id="$+id:appBar_title"
+                ohos:height="match_parent"
+                ohos:width="match_parent"
+                ohos:alpha="0.95"
+                ohos:left_margin="$float:leftMargin_uname"
+                ohos:text="$string:title_file_upload"
+                ohos:text_size="$float:textSize_appBar_title"/>
+
+        </DirectionalLayout>
+    </DirectionalLayout>
+
+    <!-- 底部导航栏 -->
+    <include
+        ohos:id="$+id:bottom_bar"
+        ohos:height="$float:bottom_bar_height"
+        ohos:layout="$layout:bottom_bar_file_history"
+        ohos:width="match_parent"
+        ohos:align_parent_bottom="true"
+        ohos:alignment="vertical_center"
+        ohos:background_element="$color:bottom_bar_background_color"
+        ohos:orientation="horizontal" />
+
+</DependentLayout>

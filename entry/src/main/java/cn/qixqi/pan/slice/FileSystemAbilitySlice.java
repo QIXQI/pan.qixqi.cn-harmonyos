@@ -7,8 +7,11 @@ import cn.qixqi.pan.dao.impl.TokenDaoImpl;
 import cn.qixqi.pan.datamodel.BottomBarItemInfo;
 import cn.qixqi.pan.datamodel.FileItemInfo;
 import cn.qixqi.pan.datamodel.FolderItemInfo;
+import cn.qixqi.pan.filter.GifSizeFilter;
+import cn.qixqi.pan.model.FastDFSFile;
 import cn.qixqi.pan.model.FolderLink;
 import cn.qixqi.pan.util.ElementUtil;
+import cn.qixqi.pan.util.FastDFSUtil;
 import cn.qixqi.pan.util.HttpUtil;
 import cn.qixqi.pan.util.Toast;
 import cn.qixqi.pan.view.BottomBarItemView;
@@ -17,19 +20,31 @@ import cn.qixqi.pan.view.FolderItemView;
 import cn.qixqi.pan.view.adapter.FileItemProvider;
 import cn.qixqi.pan.view.adapter.FolderItemProvider;
 import com.alibaba.fastjson.JSON;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MatisseAbility;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.SimpleImageEngine;
+import com.zhihu.matisse.filter.Filter;
 import ohos.aafwk.ability.AbilitySlice;
 import ohos.aafwk.content.Intent;
 import ohos.aafwk.content.Operation;
 import ohos.agp.components.*;
 import ohos.agp.utils.Color;
 import ohos.app.dispatcher.TaskDispatcher;
+import ohos.app.dispatcher.task.TaskPriority;
+import ohos.bundle.IBundleManager;
+import ohos.hiviewdfx.Debug;
 import ohos.hiviewdfx.HiLog;
 import ohos.hiviewdfx.HiLogLabel;
+import ohos.utils.net.Uri;
 import okhttp3.Call;
 import okhttp3.Response;
+import org.csource.common.MyException;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +53,15 @@ import java.util.stream.IntStream;
 public class FileSystemAbilitySlice extends AbilitySlice {
 
     private static final HiLogLabel LOG_LABEL = new HiLogLabel(3, 0xD001100, FileSystemAbilitySlice.class.getName());
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 520;
+
     // ListContainer 弹性回滚效果参数
     private static final int OVER_SCROLL_PERCENT = 40;
     private static final float OVER_SCROLL_RATE = 0.6f;
     private static final int REMAIN_VISIBLE_PERCENT = 20;
+
+    private static final int REQUEST_CODE_CHOOSE = 1;
+    private List<Uri> mSelected;
 
     private TokenDao tokenDao;
     private FolderLink folderLink;
@@ -104,12 +124,120 @@ public class FileSystemAbilitySlice extends AbilitySlice {
         });
         // downloadItemLayout 点击事件
         downloadItemLayout.setClickedListener(component -> {
-            Toast.makeToast(abilitySlice, "点击downloadItemLayout", Toast.TOAST_SHORT).show();
+            // Toast.makeToast(abilitySlice, "点击downloadItemLayout", Toast.TOAST_SHORT).show();
+            Intent intent = new Intent();
+            Operation operation = new Intent.OperationBuilder()
+                    .withDeviceId("")
+                    .withBundleName("cn.qixqi.pan")
+                    .withAbilityName("cn.qixqi.pan.FileHistoryAbility")
+                    .build();
+            intent.setOperation(operation);
+            // 释放掉栈内所有的 Ability，不再返回先前页面
+            intent.setFlags(Intent.FLAG_ABILITY_CLEAR_MISSION | Intent.FLAG_ABILITY_NEW_MISSION);
+            startAbility(intent);
         });
         // 点击 uploadItemLayout
         uploadItemLayout.setClickedListener( component -> {
             Toast.makeToast(abilitySlice, "点击uploadItemLayout", Toast.TOAST_SHORT).show();
+            /* if (verifyCallingPermission("ohos.permission.CAMERA") != IBundleManager.PERMISSION_GRANTED ||
+                verifyCallingPermission("ohos.permission.READ_MEDIA") != IBundleManager.PERMISSION_GRANTED ||
+                verifyCallingPermission("ohos.permission.WRITE_MEDIA") != IBundleManager.PERMISSION_GRANTED) {
+                // 没有权限
+                HiLog.error(LOG_LABEL, "没有权限");
+            } */
+            if (verifySelfPermission("ohos.permission.WRITE_USER_STORAGE") != IBundleManager.PERMISSION_GRANTED ||
+                    verifySelfPermission("ohos.permission.CAMERA") != IBundleManager.PERMISSION_GRANTED ||
+                    verifySelfPermission("ohos.permission.READ_MEDIA") != IBundleManager.PERMISSION_GRANTED) {
+
+                HiLog.debug(LOG_LABEL, "没有权限，尝试申请权限");
+                // 没有权限
+                if (canRequestPermission("ohos.permission.READ_MEDIA")) {
+                    // ohos.permission.READ_MEDIA 允许弹框授权
+                    HiLog.debug(LOG_LABEL, "ohos.permission.READ_MEDIA 允许弹框授权");
+                    requestPermissionsFromUser(
+                            new String[]{"ohos.permission.READ_MEDIA",
+                                    "ohos.permission.WRITE_MEDIA",
+                                    "ohos.permission.MEDIA_LOCATION",
+                                    "ohos.permission.CAMERA",
+                                    "ohos.permission.WRITE_USER_STORAGE"
+                            }, MY_PERMISSIONS_REQUEST_CAMERA);
+                } else {
+                    // ohos.permission.READ_MEDIA 不允许弹框授权
+                    HiLog.warn(LOG_LABEL, "ohos.permission.READ_MEDIA 不允许弹框授权");
+                }
+            } else {
+                // 有权限
+                HiLog.debug(LOG_LABEL, "有权限，即将访问相册");
+                Matisse.from(abilitySlice)
+                        .choose(MimeType.ofAll())
+                        .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
+                        .countable(true)
+                        .capture(true)
+                        .maxSelectable(9)
+                        .originalEnable(false)
+                        .forResult(REQUEST_CODE_CHOOSE);
+            }
         });
+    }
+
+    /**
+     * 启动 Ability 返回结果处理
+     * @param requestCode
+     * @param resultCode
+     * @param resultData
+     */
+    @Override
+    protected void onAbilityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onAbilityResult(requestCode, resultCode, resultData);
+
+        switch (requestCode){
+            case REQUEST_CODE_CHOOSE:
+                if (resultCode == MatisseAbility.RESULT_OK){
+                    mSelected = Matisse.obtainResult(resultData);
+                    ArrayList<Uri> uriArrayList = resultData.getSequenceableArrayListParam(MatisseAbility.EXTRA_RESULT_SELECTION);
+                    // stringArrayList 是真实文件路径列表
+                    ArrayList<String> stringArrayList = resultData.getStringArrayListParam(MatisseAbility.EXTRA_RESULT_SELECTION_PATH);
+                    HiLog.debug(LOG_LABEL, "mSelected: " + mSelected);
+                    HiLog.debug(LOG_LABEL, "uriArrayList: " + uriArrayList);
+                    HiLog.debug(LOG_LABEL, "stringArrayList: " + stringArrayList);
+
+                    // 主线程不能进行网络请求，新开一个线程上传文件
+                    getGlobalTaskDispatcher(TaskPriority.DEFAULT)
+                            .asyncDispatch( () -> {
+                                uploadFile(stringArrayList.get(0));
+                            });
+                } else {
+                    HiLog.warn(LOG_LABEL, String.format("没有选取文件或访问相册失败，resultCode=%s, resultData=%s", String.valueOf(resultCode),
+                            resultData == null ? "null" : resultData.toString()
+                    ));
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 上传文件
+     * @param filePath
+     */
+    private void uploadFile(String filePath){
+        FastDFSFile fastDFSFile = new FastDFSFile();
+        fastDFSFile.setName(filePath);
+        fastDFSFile.setExt("jpg");
+        try {
+            HiLog.debug(LOG_LABEL, FastDFSUtil.upload(fastDFSFile));
+        } catch (IOException ex){
+            HiLog.error(LOG_LABEL, String.format("上传文件IOException，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (MyException ex){
+            HiLog.error(LOG_LABEL, String.format("上传文件MyException，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (Exception ex){
+            HiLog.error(LOG_LABEL, String.format("上传文件Exception，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        }
     }
 
     /**

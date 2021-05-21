@@ -48,7 +48,16 @@
         "description": "$string:mainability_description",
         "label": "$string:app_name",
         "type": "page",
-        "launchType": "standard"
+        "launchType": "standard",
+        "metaData": {
+          "customizeData": [
+            {
+              "name": "hwc-theme",
+              "value": "androidhwext:style/Theme.Emui.NoTitleBar",
+              "extra": ""
+            }
+          ]
+        }
       },
       {
         "orientation": "unspecified",
@@ -121,11 +130,107 @@
             }
           ]
         }
+      },
+      {
+        "orientation": "unspecified",
+        "name": "cn.qixqi.pan.FileHistoryAbility",
+        "icon": "$media:icon",
+        "description": "$string:filehistoryability_description",
+        "label": "$string:app_name",
+        "type": "page",
+        "launchType": "standard",
+        "metaData": {
+          "customizeData": [
+            {
+              "name": "hwc-theme",
+              "value": "androidhwext:style/Theme.Emui.NoTitleBar",
+              "extra": ""
+            }
+          ]
+        }
       }
     ],
     "reqPermissions": [
       {
         "name": "ohos.permission.INTERNET"
+      },
+      {
+        "mergeRule": {
+          "replace": ["usedScene"]
+        },
+        "name": "ohos.permission.READ_MEDIA",
+        "reason": "read media",
+        "usedScene": {
+          "ability": [
+            "com.zhihu.matisse.MatisseAbility",
+            "com.zhihu.matisse.slice.AlbumPreviewAbility",
+            "com.zhihu.matisse.slice.CameraAbility",
+            "cn.qixqi.pan.FileSystemAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "mergeRule": {
+          "replace": ["usedScene"]
+        },
+        "name": "ohos.permission.WRITE_MEDIA",
+        "reason": "write media",
+        "usedScene": {
+          "ability": [
+            "com.zhihu.matisse.MatisseAbility",
+            "com.zhihu.matisse.slice.AlbumPreviewAbility",
+            "com.zhihu.matisse.slice.CameraAbility",
+            "cn.qixqi.pan.FileSystemAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "mergeRule": {
+          "replace": ["usedScene"]
+        },
+        "name": "ohos.permission.MEDIA_LOCATION",
+        "reason": "read media location",
+        "usedScene": {
+          "ability": [
+            "com.zhihu.matisse.MatisseAbility",
+            "com.zhihu.matisse.slice.AlbumPreviewAbility",
+            "com.zhihu.matisse.slice.CameraAbility",
+            "cn.qixqi.pan.FileSystemAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "mergeRule": {
+          "replace": ["usedScene"]
+        },
+        "name": "ohos.permission.CAMERA",
+        "reason": "camera",
+        "usedScene": {
+          "ability": [
+            "com.zhihu.matisse.MatisseAbility",
+            "com.zhihu.matisse.slice.AlbumPreviewAbility",
+            "com.zhihu.matisse.slice.CameraAbility",
+            "cn.qixqi.pan.FileSystemAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "mergeRule": {
+          "replace": ["usedScene"]
+        },
+        "name": "ohos.permission.WRITE_USER_STORAGE",
+        "reason": "write user storage",
+        "usedScene": {
+          "ability": [
+            "com.zhihu.matisse.slice.CameraAbility",
+            "cn.qixqi.pan.FileSystemAbility"
+          ],
+          "when": "always"
+        }
       }
     ]
   }

@@ -315,6 +315,10 @@
     {
       "name": "height_user_info_list_divider",
       "value": "1vp"
+    },
+    {
+      "name": "textSize_appBar_title",
+      "value": "20vp"
     }
   ]
 }

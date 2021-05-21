@@ -271,6 +271,41 @@
     {
       "name": "unknown",
       "value": "unknown"
+    },
+    {
+      "name": "filehistoryability_description",
+      "value": "Java_Phone_Empty Feature Ability"
+    },
+    {
+      "name": "filehistoryability_HelloWorld",
+      "value": "Hello World"
+    },
+    {
+      "name": "title_file_download",
+      "value": "download list"
+    },
+    {
+      "name": "title_file_upload",
+      "value": "upload list"
+    },
+
+
+
+    {
+      "name": "reason_CAMERA",
+      "value": "I need CAMERA permission"
+    },
+    {
+      "name": "reason_READ_MEDIA",
+      "value": "I need READ_MEDIA permission"
+    },
+    {
+      "name": "reason_WRITE_MEDIA",
+      "value": "I need WRITE_MEDIA permission"
+    },
+    {
+      "name": "error_gif",
+      "value": "x or y bound size should be at least %1$dpx and file size should be no more than %2$sM"
     }
   ]
 }
