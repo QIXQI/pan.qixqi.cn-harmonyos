@@ -5,7 +5,10 @@ import org.csource.common.MyException;
 import org.csource.common.NameValuePair;
 import org.csource.fastdfs.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 
 
@@ -72,6 +75,85 @@ public class FastDFSUtil {
         String url = rsp[0] + "/" + rsp[1];
 
         return ipPort + url;
+    }
+
+    /**
+     * 通过文件字节数组上传文件
+     * @param buff 文件字节数组
+     * @param offset
+     * @param len
+     * @param file_ext_name
+     * @return
+     * @throws IOException
+     * @throws MyException
+     */
+    public static String uploadBytes(byte[] buff, int offset, int len,  String file_ext_name)
+            throws IOException, MyException {
+        // 新建 TrackerClient 对象，访问 TrackerServer
+        TrackerClient trackerClient = new TrackerClient();
+        // 获取连接，获取 TrackerServer 对象
+        TrackerServer trackerServer = trackerClient.getTrackerServer();
+        // 获取 StorageServer 的连接信息
+        StorageServer storageServer = trackerClient.getStoreStorage(trackerServer);
+        // 新建 StorageClient 对象
+        StorageClient storageClient = new StorageClient(trackerServer, storageServer);
+
+        // 虚拟附加参数
+        NameValuePair[] list = new NameValuePair[1];
+        NameValuePair nameValuePair = new NameValuePair("address", "大连");
+        list[0] = nameValuePair;
+
+        String[] rsp = storageClient.upload_file(buff, offset, len, file_ext_name, list);
+
+        // 文件服务器
+        // rsp[0] 分组信息
+        // rsp[1] 分组内的具体存储位置
+        String ipPort = "http://ali.qixqi.cn:8888/";
+        String url = rsp[0] + "/" + rsp[1];
+
+        return ipPort + url;
+    }
+
+    /**
+     * 通过文件流上传文件
+     * @param file_ext_name  文件扩展名
+     * @param inputStream   文件流
+     * @return
+     * @throws IOException
+     * @throws MyException
+     */
+    public static String uploadByStream(String file_ext_name, InputStream inputStream) throws IOException, MyException{
+        // 新建 TrackerClient 对象，访问 TrackerServer
+        TrackerClient trackerClient = new TrackerClient();
+        // 获取连接，获取 TrackerServer 对象
+        TrackerServer trackerServer = trackerClient.getTrackerServer();
+        // 获取 StorageServer 的连接信息
+        StorageServer storageServer = trackerClient.getStoreStorage(trackerServer);
+        // 新建 StorageClient 对象
+        StorageClient storageClient = new StorageClient(trackerServer, storageServer);
+
+        // 虚拟附加参数
+        NameValuePair[] list = new NameValuePair[1];
+        NameValuePair nameValuePair = new NameValuePair("address", "大连");
+        list[0] = nameValuePair;
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buff = new byte[1024];
+        int len = 0;
+        while ((len = inputStream.read(buff)) != -1) {
+            outputStream.write(buff, 0, len);
+        }
+        byte[] stream2Byte = outputStream.toByteArray();
+        String[] rsp = storageClient.upload_file(stream2Byte, file_ext_name, list);
+
+        // 文件服务器
+        // rsp[0] 分组信息
+        // rsp[1] 分组内的具体存储位置
+        /* String ipPort = "http://ali.qixqi.cn:8888/";
+        String url = rsp[0] + "/" + rsp[1];
+
+        return ipPort + url; */
+        return rsp[0] + "/" + rsp[1];
     }
 
 

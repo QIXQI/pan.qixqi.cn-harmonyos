@@ -8,8 +8,8 @@ import cn.qixqi.pan.datamodel.BottomBarItemInfo;
 import cn.qixqi.pan.datamodel.FileItemInfo;
 import cn.qixqi.pan.datamodel.FolderItemInfo;
 import cn.qixqi.pan.filter.GifSizeFilter;
-import cn.qixqi.pan.model.FastDFSFile;
-import cn.qixqi.pan.model.FolderLink;
+import cn.qixqi.pan.model.*;
+import cn.qixqi.pan.model.File;
 import cn.qixqi.pan.util.ElementUtil;
 import cn.qixqi.pan.util.FastDFSUtil;
 import cn.qixqi.pan.util.HttpUtil;
@@ -20,12 +20,15 @@ import cn.qixqi.pan.view.FolderItemView;
 import cn.qixqi.pan.view.adapter.FileItemProvider;
 import cn.qixqi.pan.view.adapter.FolderItemProvider;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MatisseAbility;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.SimpleImageEngine;
 import com.zhihu.matisse.filter.Filter;
 import ohos.aafwk.ability.AbilitySlice;
+import ohos.aafwk.ability.DataAbilityHelper;
+import ohos.aafwk.ability.DataAbilityRemoteException;
 import ohos.aafwk.content.Intent;
 import ohos.aafwk.content.Operation;
 import ohos.agp.components.*;
@@ -33,21 +36,28 @@ import ohos.agp.utils.Color;
 import ohos.app.dispatcher.TaskDispatcher;
 import ohos.app.dispatcher.task.TaskPriority;
 import ohos.bundle.IBundleManager;
+import ohos.data.dataability.DataAbilityPredicates;
+import ohos.data.distributed.common.Value;
+import ohos.data.rdb.ValuesBucket;
+import ohos.data.resultset.ResultSet;
+import ohos.global.resource.RawFileEntry;
+import ohos.global.resource.Resource;
+import ohos.global.resource.ResourceManager;
 import ohos.hiviewdfx.Debug;
 import ohos.hiviewdfx.HiLog;
 import ohos.hiviewdfx.HiLogLabel;
 import ohos.utils.net.Uri;
 import okhttp3.Call;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.csource.common.MyException;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.nio.*;
+import java.nio.channels.FileChannel;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class FileSystemAbilitySlice extends AbilitySlice {
@@ -66,8 +76,14 @@ public class FileSystemAbilitySlice extends AbilitySlice {
     private TokenDao tokenDao;
     private FolderLink folderLink;
     private AbilitySlice abilitySlice;
+    private DataAbilityHelper helper;
+    private static final String UPLOAD_BASE_URI = "dataability:///cn.qixqi.pan.data.FileUploadDataAbility";
+    private static final String UPLOAD_DATA_PATH = "/fileUpload";
 
     private static final String GET_FOLDER_LINK_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/folderLink";
+    private static final String GET_FILE_ID_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/fileMd5";
+    private static final String ADD_FILE_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/file";
+    private static final String ADD_FOLDER_CHILDREN = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/folderLink/child/children";
 
     private ListContainer foldersContainer;
     private ListContainer filesContainer;
@@ -86,6 +102,7 @@ public class FileSystemAbilitySlice extends AbilitySlice {
         super.setUIContent(ResourceTable.Layout_ability_file_system);
 
         abilitySlice = this;
+        helper = DataAbilityHelper.creator(this);
 
         this.getWindow().setStatusBarColor(ElementUtil.getColor(this, ResourceTable.Color_colorSubBackground));
         this.getWindow().setNavigationBarColor(ElementUtil.getColor(this, ResourceTable.Color_colorSubBackground));
@@ -201,10 +218,17 @@ public class FileSystemAbilitySlice extends AbilitySlice {
                     HiLog.debug(LOG_LABEL, "uriArrayList: " + uriArrayList);
                     HiLog.debug(LOG_LABEL, "stringArrayList: " + stringArrayList);
 
-                    // 主线程不能进行网络请求，新开一个线程上传文件
+                    // 主线程不能进行网络请求，新开一个线程判断文件是否存在
                     getGlobalTaskDispatcher(TaskPriority.DEFAULT)
                             .asyncDispatch( () -> {
-                                uploadFile(stringArrayList.get(0));
+                                try {
+                                    isFileExist(uriArrayList.get(0), stringArrayList.get(0));
+                                } catch (IOException ex){
+                                    HiLog.error(LOG_LABEL, String.format("获取文件流发生异常，异常信息：%s", ex.getMessage()));
+                                    ex.printStackTrace();
+                                } catch (DataAbilityRemoteException ex){
+                                    HiLog.error(LOG_LABEL, String.format("使用文件描述符打开文件%s, 异常：%s",stringArrayList.get(0), ex.getMessage()));
+                                }
                             });
                 } else {
                     HiLog.warn(LOG_LABEL, String.format("没有选取文件或访问相册失败，resultCode=%s, resultData=%s", String.valueOf(resultCode),
@@ -220,10 +244,102 @@ public class FileSystemAbilitySlice extends AbilitySlice {
 
     /**
      * 上传文件
+     * @param inputStream
      * @param filePath
+     * @param fileId
      */
-    private void uploadFile(String filePath){
-        FastDFSFile fastDFSFile = new FastDFSFile();
+    private void uploadFile(FileInputStream inputStream, String filePath, String fileId){
+
+        /* InputStream in = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try{
+            in = new FileInputStream(filePath);
+            byte[] buf = new byte[1024];
+            int length = 0;
+            while ((length = in.read(buf)) != -1){
+                out.write(buf, 0, length);
+            }
+        } catch (Exception ex){
+            HiLog.error(LOG_LABEL, String.format("11111111111111111上传文件%s发生异常，异常信息：%s", filePath, ex.getMessage()));
+            ex.printStackTrace();
+        } finally {
+            if (in != null){
+                try {
+                    in.close();
+                } catch (IOException ex){
+                    HiLog.error(LOG_LABEL, String.format("22222222222222222222222关闭流发生异常：%s", ex.getMessage()));
+                    ex.printStackTrace();
+                }
+            }
+        }
+        byte[] outByte = out.toByteArray();
+        HiLog.debug(LOG_LABEL, String.format("byte: %s", outByte.toString())); */
+
+
+        // 测试
+        /* filePath = "assets/entry/resources/rawfile/pan/test.jpg";
+        File file = new File(filePath);
+        HiLog.debug(LOG_LABEL, file.getAbsolutePath());
+        HiLog.debug(LOG_LABEL, file.exists() ? "存在" : "不存在");
+        HiLog.debug(LOG_LABEL, file.canRead() ? "可读" : "不可读");
+        HiLog.debug(LOG_LABEL, file.canWrite() ? "可写" : "不可写");
+        HiLog.debug(LOG_LABEL, file.canExecute() ? "可执行" : "不可执行");
+
+        ResourceManager resourceManager = abilitySlice.getResourceManager();
+        RawFileEntry rawFileEntry = resourceManager.getRawFileEntry("resources/rawfile/pan/test.jpg"); */
+
+        try{
+            /* Resource resource = rawFileEntry.openRawFile();
+            int len = resource.available();
+            byte[] buffer = new byte[len];
+            resource.read(buffer, 0, len);
+
+            HiLog.debug(LOG_LABEL, FastDFSUtil.uploadBytes(buffer, 0, len, "jpg")); */
+
+
+            // 获取文件扩展名
+            String fileExtName = "";
+            // 获取文件名
+            String fileName = "";
+            try {
+                fileExtName = filePath.substring(filePath.lastIndexOf(".")+1);
+                fileName = filePath.substring(filePath.lastIndexOf("/")+1);
+            } catch (Exception e){
+                HiLog.warn(LOG_LABEL, String.format("文件%s后缀名或文件名解析发生异常：%s", filePath, e.getMessage()));
+                e.printStackTrace();
+                fileExtName = "unknown";
+                fileName = "unknown";
+            }
+            // 上传文件
+            String fileUrl = FastDFSUtil.uploadByStream(fileExtName, inputStream);
+            HiLog.debug(LOG_LABEL, String.format("上传成功！文件地址：%s", fileUrl));
+
+            // 通过 FileInputStream 获取文件大小，返回int，最多获取1.9G，且是 available
+            // 解决办法：通过 java.nio.*下的新工具——FileChannel
+            FileChannel fileChannel = inputStream.getChannel();
+
+            // 添加文件实体记录
+            File file = new File();
+            file.setFileId(fileId);
+            file.setFileName(fileName);
+            file.setFileType(fileExtName);
+            file.setFileSize(fileChannel.size());
+            file.setUrl(fileUrl);
+            addFileEntity(file);
+
+        } catch (IOException ex){
+            HiLog.error(LOG_LABEL, String.format("获取文件流发生异常，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (MyException ex){
+            HiLog.error(LOG_LABEL, String.format("上传文件MyException，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (Exception ex){
+            // [TODO] 上传文件Exception，异常信息：Attempt to invoke virtual method 'java.lang.String java.net.InetAddress.getHostAddress()' on a null object reference
+            HiLog.error(LOG_LABEL, String.format("上传文件Exception，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        }
+
+        /* FastDFSFile fastDFSFile = new FastDFSFile();
         fastDFSFile.setName(filePath);
         fastDFSFile.setExt("jpg");
         try {
@@ -237,7 +353,179 @@ public class FileSystemAbilitySlice extends AbilitySlice {
         } catch (Exception ex){
             HiLog.error(LOG_LABEL, String.format("上传文件Exception，异常信息：%s", ex.getMessage()));
             ex.printStackTrace();
+        }*/
+    }
+
+    /**
+     * 根据文件md5值，判断文件是否已经存在
+     * @param fileUri
+     * @param filePath
+     *      string[0] exist "yes" "no"
+     *      string[1] fileId
+     */
+    private void isFileExist(Uri fileUri, String filePath) throws IOException, DataAbilityRemoteException {
+        FileDescriptor fd = helper.openFile(fileUri, "r");
+        // 使用文件描述符，获取文件流
+        FileInputStream inputStream = new FileInputStream(fd);
+
+        // 计算文件 md5值
+        String md5 = DigestUtils.md5Hex(inputStream);
+        HiLog.debug(LOG_LABEL, String.format("文件md5值：%s", md5));
+
+        String url = String.format("%s/%s", GET_FILE_ID_URL, md5);
+        String accessToken = tokenDao.get().getAccessToken();
+        Map<String, String> addHeaders = new HashMap<>();
+        String Authorization = String.format("Bearer %s", accessToken);
+        addHeaders.put("Authorization", Authorization);
+        HttpUtil.get(url, null, addHeaders, new okhttp3.Callback(){
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e){
+                HiLog.error(LOG_LABEL, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                String responseStr = response.body().string();
+                if (response.isSuccessful()){
+                    // 解析 JSON 字符串
+                    JSONObject object = JSONObject.parseObject(responseStr);
+                    String exist = object.getString("exist");
+                    HiLog.debug(LOG_LABEL, String.format("exist: %s", exist));
+
+                    if ("yes".equals(exist)){
+                        // 文件已存在
+                        // 文件夹链接添加文件链接记录
+                        String fileJson = object.getString("file");
+                        File file = JSON.parseObject(fileJson, File.class);
+                        addFileLinkOfFolder(file);
+                    } else if ("no".equals(exist)){
+                        // 文件不存在
+                        // 上传文件
+                        String fileId = object.getString("fileId");
+                        uploadFile(inputStream, filePath, fileId);
+                    } else {
+                        HiLog.error(LOG_LABEL, String.format("exist: %s", exist));
+                    }
+                } else {
+                    HiLog.error(LOG_LABEL, responseStr);
+                }
+            }
+        });
+    }
+
+    /**
+     * 添加文件实体记录
+     * @param file
+     */
+    private void addFileEntity(File file){
+        String fileJson = JSON.toJSONString(file);
+        HiLog.debug(LOG_LABEL, String.format("fileJson: %s", fileJson));
+
+        RequestBody requestBody = RequestBody.create(HttpUtil.JSON, fileJson);
+        String accessToken = tokenDao.get().getAccessToken();
+        Map<String, String> addHeaders = new HashMap<>();
+        String Authorization = String.format("Bearer %s", accessToken);
+        addHeaders.put("Authorization", Authorization);
+        HttpUtil.post(ADD_FILE_URL, requestBody,null, addHeaders, new okhttp3.Callback(){
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e){
+                HiLog.error(LOG_LABEL, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                String responseStr = response.body().string();
+                if (response.isSuccessful()){
+                    // 解析 JSON 字符串
+                    File file = JSON.parseObject(responseStr, File.class);
+                    HiLog.debug(LOG_LABEL, String.format("添加文件实体成功：%s", file.toString()));
+
+                    // 文件夹链接添加文件链接记录
+                    addFileLinkOfFolder(file);
+                } else {
+                    HiLog.error(LOG_LABEL, responseStr);
+                }
+            }
+        });
+    }
+
+    /**
+     * 文件夹链接添加文件链接记录
+     * @param file
+     */
+    private void addFileLinkOfFolder(File file){
+        if (file == null){
+            HiLog.error(LOG_LABEL, "文件夹链接添加文件链接记录，file为空");
+            return;
         }
+
+        FileLink fileLink = new FileLink();
+        fileLink.setLinkName(file.getFileName());
+        fileLink.setFileId(file.getFileId());
+        fileLink.setFileType(file.getFileType());
+        fileLink.setFileSize(file.getFileSize());
+        List<FileLink> fileLinks = new ArrayList<>();
+        fileLinks.add(fileLink);
+
+        FolderChildren children = new FolderChildren();
+        children.setFiles(fileLinks);
+
+        FolderLink folderLink1 = new FolderLink();
+        folderLink1.setFolderId(folderLink.getFolderId());
+        folderLink1.setUid(folderLink.getUid());
+        folderLink1.setChildren(children);
+
+        String folderLink1Json = JSON.toJSONString(folderLink1);
+        RequestBody requestBody = RequestBody.create(HttpUtil.JSON, folderLink1Json);
+        String accessToken = tokenDao.get().getAccessToken();
+        Map<String, String> addHeaders = new HashMap<>();
+        String Authorization = String.format("Bearer %s", accessToken);
+        addHeaders.put("Authorization", Authorization);
+
+        HttpUtil.post(ADD_FOLDER_CHILDREN, requestBody, null, addHeaders, new okhttp3.Callback(){
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e){
+                HiLog.error(LOG_LABEL, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                String responseStr = response.body().string();
+                if (response.isSuccessful()){
+                    // 解析 JSON 字符串
+                    JSONObject object = JSONObject.parseObject(responseStr);
+                    int status = object.getIntValue("status");
+                    HiLog.debug(LOG_LABEL, String.format("status: %d", status));
+                    if (status <= 0){
+                        // 添加失败
+                        HiLog.debug(LOG_LABEL, "文件夹链接添加文件链接记录，失败！");
+                    } else {
+                        HiLog.debug(LOG_LABEL, "文件夹链接添加文件链接记录，成功！");
+
+                        // 解析 folderLink 添加子文件夹链接列表与子文件链接列表成功，返回的子项
+                        FolderChildren children1 = object.getObject("children", FolderChildren.class);
+
+                        // 本地添加上传记录
+                        insert_fileUpload(children1.getFiles().get(0));
+
+                        // 本地查询上传记录
+                        query_fileUpload();
+
+                        // 在主线程（UI线程）弹窗：文件上传成功
+                        TaskDispatcher uiTaskDispatcher = getUITaskDispatcher();
+                        uiTaskDispatcher.asyncDispatch(() -> {
+                            Toast.makeToast(abilitySlice, String.format("文件%s上传成功！", file.getFileName()), Toast.TOAST_SHORT).show();
+                        });
+
+                        // 刷新当前文件夹
+                        getFolderLink();
+                    }
+                } else {
+                    HiLog.error(LOG_LABEL, responseStr);
+                }
+            }
+        });
+
     }
 
     /**
@@ -248,6 +536,7 @@ public class FileSystemAbilitySlice extends AbilitySlice {
             HiLog.warn(LOG_LABEL, "folderLink 为空");
             return;
         }
+        // 不需要手动释放 folderItemProvider 和 fileItemProvider，JAVA 自动回收
         FolderItemView folderItemView = new FolderItemView(folderLink.getChildren().getFolders());
         folderItemProvider = new FolderItemProvider(folderItemView.getFolderItemInfos());
         FileItemView fileItemView = new FileItemView(folderLink.getChildren().getFiles());
@@ -313,6 +602,7 @@ public class FileSystemAbilitySlice extends AbilitySlice {
                     HiLog.debug(LOG_LABEL, responseStr);
                     folderLink = JSON.parseObject(responseStr, FolderLink.class);
                     HiLog.debug(LOG_LABEL, folderLink.toString());
+                    HiLog.debug(LOG_LABEL, String.format("file size: %d", folderLink.getChildren().getFiles().size()));
 
                     // 设置 ListContainer
                     // 在主线程(UI线程)中执行
@@ -410,6 +700,80 @@ public class FileSystemAbilitySlice extends AbilitySlice {
             image.setPixelMap(bottomBarItemInfoList.get(position).getBnavImgSrcId());
             text.setTextColor(Color.BLACK);
         });
+    }
+
+    /**
+     * 本地添加上传记录
+     * @param fileLink
+     */
+    private void insert_fileUpload(FileLink fileLink){
+        ValuesBucket values = new ValuesBucket();
+        // values.putInteger("uploadId", 0);
+        values.putString("linkId", fileLink.getLinkId());
+        values.putString("linkName", fileLink.getLinkName());
+        values.putString("fileId", fileLink.getFileId());
+        values.putString("fileType", fileLink.getFileType());
+        values.putLong("fileSize", fileLink.getFileSize());
+        values.putLong("uploadFinishTime", new Date().getTime());
+        // [TODO] uploadStatus 使用状态码代替字符串
+        values.putString("uploadStatus", "上传完成");
+        HiLog.debug(LOG_LABEL, fileLink.toString());
+        HiLog.debug(LOG_LABEL, values.toString());
+        try {
+            int result = helper.insert(Uri.parse(UPLOAD_BASE_URI + UPLOAD_DATA_PATH), values);
+            if (result != -1){
+                HiLog.info(LOG_LABEL, "本地添加上传记录，成功！");
+            } else {
+                HiLog.warn(LOG_LABEL, "本地添加上传记录，失败！");
+            }
+        } catch (DataAbilityRemoteException ex){
+            HiLog.error(LOG_LABEL, String.format("本地添加上传记录发生DataAbilityRemoteException异常，异常信息：", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            HiLog.error(LOG_LABEL, String.format("本地添加上传记录发生IllegalStateException异常，异常信息：", ex.getMessage()));
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * 本地查询上传记录
+     */
+    private void query_fileUpload(){
+        // 查询字段
+        String[] columns = new String[] {
+                "uploadId", "linkId", "linkName", "fileId", "fileType", "fileSize", "uploadFinishTime", "uploadStatus" };
+        // 查询条件
+        DataAbilityPredicates predicates = new DataAbilityPredicates();
+        try {
+            ResultSet resultSet = helper.query(Uri.parse(UPLOAD_BASE_URI + UPLOAD_DATA_PATH), columns, predicates);
+            if (resultSet == null){
+                HiLog.debug(LOG_LABEL, "query: resultSet is null");
+                return;
+            } else if (resultSet.getRowCount() == 0){
+                HiLog.debug(LOG_LABEL, "query: resultSet is no result found");
+                return;
+            }
+            resultSet.goToFirstRow();
+            do {
+                int uploadId = resultSet.getInt(resultSet.getColumnIndexForName("uploadId"));
+                String linkId = resultSet.getString(resultSet.getColumnIndexForName("linkId"));
+                String linkName = resultSet.getString(resultSet.getColumnIndexForName("linkName"));
+                String fileId = resultSet.getString(resultSet.getColumnIndexForName("fileId"));
+                String fileType = resultSet.getString(resultSet.getColumnIndexForName("fileType"));
+                long fileSize = resultSet.getLong(resultSet.getColumnIndexForName("fileSize"));
+                long uploadFinishTime = resultSet.getLong(resultSet.getColumnIndexForName("uploadFinishTime"));
+                String uploadStatus = resultSet.getString(resultSet.getColumnIndexForName("uploadStatus"));
+                HiLog.debug(LOG_LABEL, String.format("uploadId: %d, linkId: %s, linkName: %s, fileId: %s, fileType: %s, " +
+                        "fileSize: %d, uploadFinishTime: %d, uploadStatus: %s", uploadId, linkId, linkName, fileId,
+                        fileType, fileSize, uploadFinishTime, uploadStatus));
+            } while (resultSet.goToNextRow());
+        } catch (DataAbilityRemoteException ex){
+            HiLog.error(LOG_LABEL, String.format("本地查询上传记录发生DataAbilityRemoteException异常，异常信息：", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            HiLog.error(LOG_LABEL, String.format("本地查询上传记录发生IllegalStateException异常，异常信息：", ex.getMessage()));
+            ex.printStackTrace();
+        }
     }
 
     @Override

@@ -148,6 +148,28 @@
             }
           ]
         }
+      },
+      {
+        "visible": true,
+        "permissions": [
+          "cn.qixqi.pan.data.DataAbilityShellProvider.PROVIDER"
+        ],
+        "name": "cn.qixqi.pan.data.FileDownloadDataAbility",
+        "icon": "$media:icon",
+        "description": "$string:filedownloaddataability_description",
+        "type": "data",
+        "uri": "dataability://cn.qixqi.pan.data.FileDownloadDataAbility"
+      },
+      {
+        "visible": true,
+        "permissions": [
+          "cn.qixqi.pan.data.DataAbilityShellProvider.PROVIDER"
+        ],
+        "name": "cn.qixqi.pan.data.FileUploadDataAbility",
+        "icon": "$media:icon",
+        "description": "$string:fileuploaddataability_description",
+        "type": "data",
+        "uri": "dataability://cn.qixqi.pan.data.FileUploadDataAbility"
       }
     ],
     "reqPermissions": [
@@ -156,7 +178,9 @@
       },
       {
         "mergeRule": {
-          "replace": ["usedScene"]
+          "replace": [
+            "usedScene"
+          ]
         },
         "name": "ohos.permission.READ_MEDIA",
         "reason": "read media",
@@ -172,7 +196,9 @@
       },
       {
         "mergeRule": {
-          "replace": ["usedScene"]
+          "replace": [
+            "usedScene"
+          ]
         },
         "name": "ohos.permission.WRITE_MEDIA",
         "reason": "write media",
@@ -188,7 +214,9 @@
       },
       {
         "mergeRule": {
-          "replace": ["usedScene"]
+          "replace": [
+            "usedScene"
+          ]
         },
         "name": "ohos.permission.MEDIA_LOCATION",
         "reason": "read media location",
@@ -204,7 +232,9 @@
       },
       {
         "mergeRule": {
-          "replace": ["usedScene"]
+          "replace": [
+            "usedScene"
+          ]
         },
         "name": "ohos.permission.CAMERA",
         "reason": "camera",
@@ -220,7 +250,9 @@
       },
       {
         "mergeRule": {
-          "replace": ["usedScene"]
+          "replace": [
+            "usedScene"
+          ]
         },
         "name": "ohos.permission.WRITE_USER_STORAGE",
         "reason": "write user storage",
@@ -231,6 +263,28 @@
           ],
           "when": "always"
         }
+      },
+      {
+        "name": "cn.qixqi.pan.data.FileDownloadDataAbility"
+      },
+      {
+        "name": "cn.qixqi.pan.data.FileUploadDataAbility"
+      }
+    ],
+    "defPermissions": [
+      {
+        "name": "cn.qixqi.pan.data.FileDownloadDataAbility",
+        "grantMode": "system_grant",
+        "availableScope": [
+          "signature"
+        ]
+      },
+      {
+        "name": "cn.qixqi.pan.data.FileUploadDataAbility",
+        "grantMode": "system_grant",
+        "availableScope": [
+          "signature"
+        ]
       }
     ]
   }

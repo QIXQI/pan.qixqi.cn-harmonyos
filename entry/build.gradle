@@ -29,6 +29,9 @@ dependencies {
     // implementation 'org.csource:fastdfs-client-java:1.28-SNAPSHOT'
     implementation 'io.openharmony.tpc.thirdlib:Matisse:1.0.2'
     implementation "io.openharmony.tpc.thirdlib:ImagePicker:1.0.0"
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+
 }
 decc {
     supportType = ['html','xml']
