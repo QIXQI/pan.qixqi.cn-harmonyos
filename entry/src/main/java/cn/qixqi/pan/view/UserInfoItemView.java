@@ -23,7 +23,7 @@ public class UserInfoItemView {
         if (user == null){
             return;
         }
-        userInfoItemInfos.add(new UserInfoItemInfo(ResourceTable.String_user_uid, user.getUid(), ResourceTable.Media_user_edit));
+        // userInfoItemInfos.add(new UserInfoItemInfo(ResourceTable.String_user_uid, user.getUid(), ResourceTable.Media_user_edit));
         userInfoItemInfos.add(new UserInfoItemInfo(ResourceTable.String_user_phoneNumber, user.getPhoneNumber(), ResourceTable.Media_user_edit));
         userInfoItemInfos.add(new UserInfoItemInfo(ResourceTable.String_user_uname, user.getUname(), ResourceTable.Media_user_edit));
         userInfoItemInfos.add(new UserInfoItemInfo(ResourceTable.String_user_password, user.getPassword(), ResourceTable.Media_user_edit));

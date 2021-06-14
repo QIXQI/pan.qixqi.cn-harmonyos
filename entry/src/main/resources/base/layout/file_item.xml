@@ -83,11 +83,11 @@
     </DirectionalLayout>
 
     <DirectionalLayout
-        ohos:id="$+id:file_check_layout"
-        ohos:height="match_content"
-        ohos:width="match_parent"
+        ohos:id="$+id:check_layout"
+        ohos:height="$float:layout_check_height"
+        ohos:width="$float:layout_check_width"
+        ohos:align_parent_right="true"
         ohos:alignment="right"
-        ohos:end_of="$id:file_info_layout"
         ohos:orientation="horizontal"
         ohos:vertical_center="true">
 
@@ -107,6 +107,5 @@
         ohos:background_element="$graphic:item_divider"
         ohos:below="$id:file_info_layout"
         ohos:end_of="$id:file_img_layout" />
-
 
 </DependentLayout>

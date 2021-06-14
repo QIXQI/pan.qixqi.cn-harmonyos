@@ -11,6 +11,22 @@ public class FileUpload {
     private long uploadFinishTime;
     private String uploadStatus;
 
+    public FileUpload(){
+        super();
+    }
+
+    public FileUpload(int uploadId, String linkId, String linkName, String fileId, String fileType,
+                      long fileSize, long uploadFinishTime, String uploadStatus) {
+        this.uploadId = uploadId;
+        this.linkId = linkId;
+        this.linkName = linkName;
+        this.fileId = fileId;
+        this.fileType = fileType;
+        this.fileSize = fileSize;
+        this.uploadFinishTime = uploadFinishTime;
+        this.uploadStatus = uploadStatus;
+    }
+
     public int getUploadId() {
         return uploadId;
     }

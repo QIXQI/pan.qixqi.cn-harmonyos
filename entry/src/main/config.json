@@ -28,7 +28,8 @@
     "distro": {
       "deliveryWithInstall": true,
       "moduleName": "entry",
-      "moduleType": "entry"
+      "moduleType": "entry",
+      "installationFree": false
     },
     "abilities": [
       {
@@ -170,6 +171,17 @@
         "description": "$string:fileuploaddataability_description",
         "type": "data",
         "uri": "dataability://cn.qixqi.pan.data.FileUploadDataAbility"
+      },
+      {
+        "visible": true,
+        "permissions": [
+          "cn.qixqi.pan.data.DataAbilityShellProvider.PROVIDER"
+        ],
+        "name": "cn.qixqi.pan.data.FileDataAbility",
+        "icon": "$media:icon",
+        "description": "$string:filedataability_description",
+        "type": "data",
+        "uri": "dataability://cn.qixqi.pan.data.FileDataAbility"
       }
     ],
     "reqPermissions": [
@@ -254,12 +266,29 @@
             "usedScene"
           ]
         },
+        "name": "ohos.permission.READ_USER_STORAGE",
+        "reason": "read user storage",
+        "usedScene": {
+          "ability": [
+            "cn.qixqi.pan.FileSystemAbility",
+            "cn.qixqi.pan.FileHistoryAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "mergeRule": {
+          "replace": [
+            "usedScene"
+          ]
+        },
         "name": "ohos.permission.WRITE_USER_STORAGE",
         "reason": "write user storage",
         "usedScene": {
           "ability": [
             "com.zhihu.matisse.slice.CameraAbility",
-            "cn.qixqi.pan.FileSystemAbility"
+            "cn.qixqi.pan.FileSystemAbility",
+            "cn.qixqi.pan.FileHistoryAbility"
           ],
           "when": "always"
         }
@@ -269,22 +298,29 @@
       },
       {
         "name": "cn.qixqi.pan.data.FileUploadDataAbility"
+      },
+      {
+        "name": "cn.qixqi.pan.data.FileDataAbility"
+      },
+      {
+        "name": "cn.qixqi.pan.data.DataAbilityShellProvider.PROVIDER"
       }
     ],
     "defPermissions": [
       {
         "name": "cn.qixqi.pan.data.FileDownloadDataAbility",
         "grantMode": "system_grant",
-        "availableScope": [
-          "signature"
-        ]
+        "availableScope": "signature"
       },
       {
         "name": "cn.qixqi.pan.data.FileUploadDataAbility",
         "grantMode": "system_grant",
-        "availableScope": [
-          "signature"
-        ]
+        "availableScope": "signature"
+      },
+      {
+        "name": "cn.qixqi.pan.data.FileDataAbility",
+        "grantMode": "system_grant",
+        "availableScope": "signature"
       }
     ]
   }

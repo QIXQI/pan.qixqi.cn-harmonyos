@@ -5,6 +5,15 @@ public class SimpleFolderLink {
     private String folderId;
     private String folderName;
 
+    public SimpleFolderLink(){
+
+    }
+
+    public SimpleFolderLink(SimpleFolderLink simpleFolderLink){
+        this.folderId = simpleFolderLink.getFolderId();
+        this.folderName = simpleFolderLink.getFolderName();
+    }
+
     public String getFolderId() {
         return folderId;
     }

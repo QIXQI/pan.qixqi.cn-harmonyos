@@ -165,6 +165,14 @@
       "value": "64vp"
     },
     {
+      "name": "layout_check_height",
+      "value": "40vp"
+    },
+    {
+      "name": "layout_check_width",
+      "value": "40vp"
+    },
+    {
       "name": "list_item_top_padding",
       "value": "4vp"
     },
@@ -319,6 +327,30 @@
     {
       "name": "textSize_appBar_title",
       "value": "20vp"
+    },
+    {
+      "name": "height_tab_list_upload",
+      "value": "36vp"
+    },
+    {
+      "name": "tab_margin_tab_list_upload",
+      "value": "24vp"
+    },
+    {
+      "name": "tab_length_tab_list_upload",
+      "value": "140vp"
+    },
+    {
+      "name": "text_size_tab_list_upload",
+      "value": "20fp"
+    },
+    {
+      "name": "selected_tab_indicator_height_tab_list_upload",
+      "value": "2vp"
+    },
+    {
+      "name": "preview_image_margin",
+      "value": "0vp"
     }
   ]
 }

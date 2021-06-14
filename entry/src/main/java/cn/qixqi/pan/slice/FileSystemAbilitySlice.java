@@ -14,21 +14,18 @@ import cn.qixqi.pan.util.ElementUtil;
 import cn.qixqi.pan.util.FastDFSUtil;
 import cn.qixqi.pan.util.HttpUtil;
 import cn.qixqi.pan.util.Toast;
+import cn.qixqi.pan.view.BottomBarFSItemView;
 import cn.qixqi.pan.view.BottomBarItemView;
 import cn.qixqi.pan.view.FileItemView;
 import cn.qixqi.pan.view.FolderItemView;
-import cn.qixqi.pan.view.adapter.FileItemProvider;
-import cn.qixqi.pan.view.adapter.FolderItemProvider;
+import cn.qixqi.pan.view.adapter.ChildItemProvider;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MatisseAbility;
 import com.zhihu.matisse.MimeType;
-import com.zhihu.matisse.engine.impl.SimpleImageEngine;
 import com.zhihu.matisse.filter.Filter;
-import ohos.aafwk.ability.AbilitySlice;
-import ohos.aafwk.ability.DataAbilityHelper;
-import ohos.aafwk.ability.DataAbilityRemoteException;
+import ohos.aafwk.ability.*;
 import ohos.aafwk.content.Intent;
 import ohos.aafwk.content.Operation;
 import ohos.agp.components.*;
@@ -37,12 +34,8 @@ import ohos.app.dispatcher.TaskDispatcher;
 import ohos.app.dispatcher.task.TaskPriority;
 import ohos.bundle.IBundleManager;
 import ohos.data.dataability.DataAbilityPredicates;
-import ohos.data.distributed.common.Value;
 import ohos.data.rdb.ValuesBucket;
 import ohos.data.resultset.ResultSet;
-import ohos.global.resource.RawFileEntry;
-import ohos.global.resource.Resource;
-import ohos.global.resource.ResourceManager;
 import ohos.hiviewdfx.Debug;
 import ohos.hiviewdfx.HiLog;
 import ohos.hiviewdfx.HiLogLabel;
@@ -55,12 +48,11 @@ import org.csource.common.MyException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class FileSystemAbilitySlice extends AbilitySlice {
+public class FileSystemAbilitySlice extends AbilitySlice implements ChildItemProvider.Callback{
 
     private static final HiLogLabel LOG_LABEL = new HiLogLabel(3, 0xD001100, FileSystemAbilitySlice.class.getName());
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 520;
@@ -78,23 +70,38 @@ public class FileSystemAbilitySlice extends AbilitySlice {
     private AbilitySlice abilitySlice;
     private DataAbilityHelper helper;
     private static final String UPLOAD_BASE_URI = "dataability:///cn.qixqi.pan.data.FileUploadDataAbility";
+    private static final String DOWNLOAD_BASE_URI = "dataability:///cn.qixqi.pan.data.FileDownloadDataAbility";
     private static final String UPLOAD_DATA_PATH = "/fileUpload";
+    private static final String DOWNLOAD_DATA_PATH = "/fileDownload";
+    private String rootDir;
 
     private static final String GET_FOLDER_LINK_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/folderLink";
     private static final String GET_FILE_ID_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/fileMd5";
     private static final String ADD_FILE_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/file";
     private static final String ADD_FOLDER_CHILDREN = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/folderLink/child/children";
+    private static final String GET_FILE_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/file/%s/url";
+    private static final String SHARE_FILE = "http://ali4.qixqi.cn:5555/api/filesharing/v1/filesharing/fileShare/generator";
+    private static final String DELETE_FILE = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/folderLink/child/children";
 
-    private ListContainer foldersContainer;
-    private ListContainer filesContainer;
-    private FileItemProvider fileItemProvider;
-    private FolderItemProvider folderItemProvider;
+    // private ListContainer foldersContainer;
+    // private ListContainer filesContainer;
+    // private FileItemProvider fileItemProvider;
+    // private FolderItemProvider folderItemProvider;
+    private ListContainer childrenContainer;
+    private ChildItemProvider childItemProvider;
+    private FolderChildren selectedChildren;
+    private int selectedItemCount = 0;
 
     private Text title;
     private DirectionalLayout downloadItemLayout;
     private DirectionalLayout uploadItemLayout;
 
     private List<BottomBarItemInfo> bottomBarItemInfoList;
+    // 子文件、子文件夹选中时的底部导航栏
+    private List<BottomBarItemInfo> bottomBarFSItemInfoList;
+    private Component bottomBar;
+    private Component bottomBarFS;
+    private boolean isItemSelected = false;     // 子文件（夹）未被选中
 
     @Override
     public void onStart(Intent intent) {
@@ -103,6 +110,7 @@ public class FileSystemAbilitySlice extends AbilitySlice {
 
         abilitySlice = this;
         helper = DataAbilityHelper.creator(this);
+        rootDir = getFilesDir() + java.io.File.separator + "Download" + java.io.File.separator;
 
         this.getWindow().setStatusBarColor(ElementUtil.getColor(this, ResourceTable.Color_colorSubBackground));
         this.getWindow().setNavigationBarColor(ElementUtil.getColor(this, ResourceTable.Color_colorSubBackground));
@@ -115,19 +123,26 @@ public class FileSystemAbilitySlice extends AbilitySlice {
         setBottomToolBar();
 
         getFolderLink();
+
+        // 应用请求权限
+        requestPermissions();
     }
 
     /**
      * 初始化控件和布局
      */
     private void initView(){
-        foldersContainer = (ListContainer) findComponentById(ResourceTable.Id_folders_container);
-        filesContainer = (ListContainer) findComponentById(ResourceTable.Id_files_container);
+        // foldersContainer = (ListContainer) findComponentById(ResourceTable.Id_folders_container);
+        // filesContainer = (ListContainer) findComponentById(ResourceTable.Id_files_container);
+        childrenContainer = (ListContainer) findComponentById(ResourceTable.Id_children_container);
         // **********标题栏*************
         title = (Text) findComponentById(ResourceTable.Id_title);
         title.setText(ResourceTable.String_file_title);
         downloadItemLayout = (DirectionalLayout) findComponentById(ResourceTable.Id_download_item_layout);
         uploadItemLayout = (DirectionalLayout) findComponentById(ResourceTable.Id_upload_item_layout);
+        // **********底部导航栏************
+        bottomBar = (DirectionalLayout) findComponentById(ResourceTable.Id_bottom_bar);
+        bottomBarFS = (DirectionalLayout) findComponentById(ResourceTable.Id_bottom_bar_selected);
     }
 
     /**
@@ -244,11 +259,11 @@ public class FileSystemAbilitySlice extends AbilitySlice {
 
     /**
      * 上传文件
-     * @param inputStream
+     * @param fileUri
      * @param filePath
      * @param fileId
      */
-    private void uploadFile(FileInputStream inputStream, String filePath, String fileId){
+    private void uploadFile(Uri fileUri, String filePath, String fileId){
 
         /* InputStream in = null;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -310,6 +325,11 @@ public class FileSystemAbilitySlice extends AbilitySlice {
                 fileExtName = "unknown";
                 fileName = "unknown";
             }
+
+            FileDescriptor fd = helper.openFile(fileUri, "r");
+            FileInputStream inputStream = new FileInputStream(fd);
+            HiLog.debug(LOG_LABEL, String.format("上传文件前长度：%d", inputStream.available()));
+
             // 上传文件
             String fileUrl = FastDFSUtil.uploadByStream(fileExtName, inputStream);
             HiLog.debug(LOG_LABEL, String.format("上传成功！文件地址：%s", fileUrl));
@@ -325,8 +345,9 @@ public class FileSystemAbilitySlice extends AbilitySlice {
             file.setFileType(fileExtName);
             file.setFileSize(fileChannel.size());
             file.setUrl(fileUrl);
-            addFileEntity(file);
+            inputStream.close();
 
+            addFileEntity(file);
         } catch (IOException ex){
             HiLog.error(LOG_LABEL, String.format("获取文件流发生异常，异常信息：%s", ex.getMessage()));
             ex.printStackTrace();
@@ -368,9 +389,14 @@ public class FileSystemAbilitySlice extends AbilitySlice {
         // 使用文件描述符，获取文件流
         FileInputStream inputStream = new FileInputStream(fd);
 
+        HiLog.debug(LOG_LABEL, String.format("读取前，输入流长度：%d", inputStream.available()));
+        // inputStream.mark(0);
         // 计算文件 md5值
         String md5 = DigestUtils.md5Hex(inputStream);
         HiLog.debug(LOG_LABEL, String.format("文件md5值：%s", md5));
+        // inputStream.reset();
+        HiLog.debug(LOG_LABEL, String.format("读取后，输入流长度：%d", inputStream.available()));
+        inputStream.close();
 
         String url = String.format("%s/%s", GET_FILE_ID_URL, md5);
         String accessToken = tokenDao.get().getAccessToken();
@@ -402,7 +428,8 @@ public class FileSystemAbilitySlice extends AbilitySlice {
                         // 文件不存在
                         // 上传文件
                         String fileId = object.getString("fileId");
-                        uploadFile(inputStream, filePath, fileId);
+                        HiLog.debug(LOG_LABEL, String.format("文件不存在，生成fileId: %s", fileId));
+                        uploadFile(fileUri, filePath, fileId);
                     } else {
                         HiLog.error(LOG_LABEL, String.format("exist: %s", exist));
                     }
@@ -538,12 +565,15 @@ public class FileSystemAbilitySlice extends AbilitySlice {
         }
         // 不需要手动释放 folderItemProvider 和 fileItemProvider，JAVA 自动回收
         FolderItemView folderItemView = new FolderItemView(folderLink.getChildren().getFolders());
-        folderItemProvider = new FolderItemProvider(folderItemView.getFolderItemInfos());
+        // folderItemProvider = new FolderItemProvider(folderItemView.getFolderItemInfos());
         FileItemView fileItemView = new FileItemView(folderLink.getChildren().getFiles());
-        fileItemProvider = new FileItemProvider(fileItemView.getFileItemInfos());
+        // fileItemProvider = new FileItemProvider(fileItemView.getFileItemInfos());
+        childItemProvider = new ChildItemProvider(folderItemView.getFolderItemInfos(), fileItemView.getFileItemInfos(),
+                FileSystemAbilitySlice.this);
 
-        foldersContainer.setItemProvider(folderItemProvider);
-        filesContainer.setItemProvider(fileItemProvider);
+        // foldersContainer.setItemProvider(folderItemProvider);
+        // filesContainer.setItemProvider(fileItemProvider);
+        childrenContainer.setItemProvider(childItemProvider);
 
         // 设置 ListContainer 的事件监听器
         setListClickListener();
@@ -557,15 +587,45 @@ public class FileSystemAbilitySlice extends AbilitySlice {
      */
     private void setListClickListener(){
         // foldersContainer 子项单击事件
-        foldersContainer.setItemClickedListener( (listContainer, component, position, id) -> {
+        /* foldersContainer.setItemClickedListener( (listContainer, component, position, id) -> {
             FolderItemInfo folderItemInfo = (FolderItemInfo) folderItemProvider.getItem(position);
             Toast.makeToast(abilitySlice, folderItemInfo.toString(), Toast.TOAST_SHORT).show();
-        });
+        }); */
 
         // filesContainer 子项单击事件
-        filesContainer.setItemClickedListener( (listContainer, component, position, id) -> {
+        /* filesContainer.setItemClickedListener( (listContainer, component, position, id) -> {
             FileItemInfo fileItemInfo = (FileItemInfo) fileItemProvider.getItem(position);
             Toast.makeToast(abilitySlice, fileItemInfo.toString(), Toast.TOAST_SHORT).show();
+        }); */
+
+        // childrenContainer 子项单击事件
+        childrenContainer.setItemClickedListener( (listContainer, component, position, id) -> {
+            Object object = childItemProvider.getItem(position);
+            // Toast.makeToast(abilitySlice, object.toString(), Toast.TOAST_LONG).show();
+            HiLog.debug(LOG_LABEL, String.format("position: %d, object: %s", position, object.toString()));
+        });
+
+        // childrenContainer 子项长按事件
+        childrenContainer.setItemLongClickedListener( (listContainer, component, position, id) -> {
+            if (childItemProvider.isFolder(position)){
+                // 选中子文件夹
+                FolderItemInfo folderItemInfo = (FolderItemInfo) childItemProvider.getItem(position);
+                folderItemInfo.setChecked(!folderItemInfo.isChecked());
+                selectedItemCount += folderItemInfo.isChecked() ? 1 : -1;
+            } else {
+                // 选中子文件
+                FileItemInfo fileItemInfo = (FileItemInfo) childItemProvider.getItem(position);
+                fileItemInfo.setChecked(!fileItemInfo.isChecked());
+                selectedItemCount += fileItemInfo.isChecked() ? 1 : -1;
+            }
+            childItemProvider.notifyDataSetItemChanged(position);
+            if (!isItemSelected){
+                setSelectedBottomToolBar();
+            }
+            if (selectedItemCount <= 0){
+                setBottomToolBar();
+            }
+            return false;
         });
     }
 
@@ -573,11 +633,14 @@ public class FileSystemAbilitySlice extends AbilitySlice {
      * 设置文件列表回滚动画
      */
     private void setListReboundAnimation() {
-        foldersContainer.setReboundEffect(true);
-        foldersContainer.setReboundEffectParams(OVER_SCROLL_PERCENT, OVER_SCROLL_RATE, REMAIN_VISIBLE_PERCENT);
+        // foldersContainer.setReboundEffect(true);
+        // foldersContainer.setReboundEffectParams(OVER_SCROLL_PERCENT, OVER_SCROLL_RATE, REMAIN_VISIBLE_PERCENT);
 
-        filesContainer.setReboundEffect(true);
-        filesContainer.setReboundEffectParams(OVER_SCROLL_PERCENT, OVER_SCROLL_RATE, REMAIN_VISIBLE_PERCENT);
+        // filesContainer.setReboundEffect(true);
+        // filesContainer.setReboundEffectParams(OVER_SCROLL_PERCENT, OVER_SCROLL_RATE, REMAIN_VISIBLE_PERCENT);
+
+        childrenContainer.setReboundEffect(true);
+        childrenContainer.setReboundEffectParams(OVER_SCROLL_PERCENT, OVER_SCROLL_RATE, REMAIN_VISIBLE_PERCENT);
     }
 
     /**
@@ -621,13 +684,18 @@ public class FileSystemAbilitySlice extends AbilitySlice {
      * 设置底部导航栏
      */
     private void setBottomToolBar(){
+        bottomBar.setVisibility(Component.VISIBLE);
+        bottomBarFS.setVisibility(Component.HIDE);
+        isItemSelected = false;
+        selectedItemCount = 0;
+
         BottomBarItemView bottomBarItemView = new BottomBarItemView();
         bottomBarItemInfoList = bottomBarItemView.getBottomBarItemInfos();
 
         IntStream.range(0, bottomBarItemInfoList.size()).forEach( position -> {
             DirectionalLayout bottomItemLayout = (DirectionalLayout) abilitySlice.findComponentById(
                     bottomBarItemInfoList.get(position).getBnavLayoutId());
-            bottomItemLayout.setVisibility(Component.VISIBLE);
+            // bottomItemLayout.setVisibility(Component.VISIBLE);
             Image image = (Image) bottomItemLayout.findComponentById(
                     bottomBarItemInfoList.get(position).getBnavImgId());
             Text text = (Text) bottomItemLayout.findComponentById(
@@ -703,6 +771,415 @@ public class FileSystemAbilitySlice extends AbilitySlice {
     }
 
     /**
+     * 设置底部选中导航栏
+     */
+    private void setSelectedBottomToolBar(){
+        bottomBar.setVisibility(Component.HIDE);
+        bottomBarFS.setVisibility(Component.VISIBLE);
+        // 选中子文件、子文件夹
+        isItemSelected = true;
+
+        BottomBarFSItemView bottomBarFSItemView = new BottomBarFSItemView();
+        bottomBarFSItemInfoList = bottomBarFSItemView.getBottomBarItemInfos();
+
+        IntStream.range(0, bottomBarFSItemInfoList.size()).forEach( position -> {
+            DirectionalLayout bottomItemLayout = (DirectionalLayout) abilitySlice.findComponentById(
+                    bottomBarFSItemInfoList.get(position).getBnavLayoutId());
+            // bottomItemLayout.setVisibility(Component.VISIBLE);
+            Image image = (Image) bottomItemLayout.findComponentById(
+                    bottomBarFSItemInfoList.get(position).getBnavImgId());
+            Text text = (Text) bottomItemLayout.findComponentById(
+                    bottomBarFSItemInfoList.get(position).getBnavTextId());
+
+            // 设置子项点击事件
+            bottomItemLayout.setClickedListener( component -> {
+                // Toast.makeToast(abilitySlice, String.format("点击：%s", text.getText()), Toast.TOAST_SHORT).show();
+                clickActionFromBnav(position);
+            });
+        });
+    }
+
+    /**
+     * 底部导航栏点击动作
+     * @param position
+     */
+    private void clickActionFromBnav(int position){
+        switch (position){
+            case 0:
+                HiLog.debug(LOG_LABEL, "即将开始下载文件 ...");
+                selectedChildren = childItemProvider.getSelectedChildren();
+                HiLog.debug(LOG_LABEL, selectedChildren.toString());
+                startDownload(selectedChildren);
+                break;
+            case 1:
+                HiLog.debug(LOG_LABEL, "即将开始分享文件 ...");
+                selectedChildren = childItemProvider.getSelectedChildren();
+                HiLog.debug(LOG_LABEL, selectedChildren.toString());
+                // 新开启一个线程，进行网络请求
+                getGlobalTaskDispatcher(TaskPriority.DEFAULT)
+                        .asyncDispatch( () -> {
+                            startShare(cloneChildren(selectedChildren));
+                        });
+                break;
+            case 2:
+                HiLog.debug(LOG_LABEL, "即将开始删除文件 ...");
+                selectedChildren = childItemProvider.getSelectedChildren();
+                HiLog.debug(LOG_LABEL, selectedChildren.toString());
+                // 新开启一个线程，进行网络请求
+                getGlobalTaskDispatcher(TaskPriority.DEFAULT)
+                        .asyncDispatch( () -> {
+                            startDelete(cloneChildren(selectedChildren));
+                        });
+                break;
+            case 3:
+                HiLog.debug(LOG_LABEL, "即将开始重命名文件 ...");
+                selectedChildren = childItemProvider.getSelectedChildren();
+                HiLog.debug(LOG_LABEL, selectedChildren.toString());
+                startRename(cloneChildren(selectedChildren));
+                break;
+            default:
+                HiLog.error(LOG_LABEL, "底部导航栏点击动作越界！");
+                break;
+        }
+    }
+
+    /**
+     * 开始重命名文件
+     * @param children
+     */
+    private void startRename(FolderChildren children){
+        HiLog.debug(LOG_LABEL, "开始重命名文件");
+        if (selectedItemCount == 1){
+            HiLog.debug(LOG_LABEL, "文件或文件夹被单选");
+        } else {
+            HiLog.warn(LOG_LABEL, "只有单选时才可重命名");
+            Toast.makeToast(abilitySlice, "只有单选时才可重命名", Toast.TOAST_SHORT).show();
+        }
+    }
+
+    /**
+     * 开始删除文件
+     * @param children
+     */
+    private void startDelete(FolderChildren children){
+        HiLog.debug(LOG_LABEL, "开始删除文件");
+        // 文件夹
+        children.getFolders().clear();
+        // 文件
+        FolderLink deletedFolder = new FolderLink();
+        deletedFolder.setFolderId(folderLink.getFolderId());
+        deletedFolder.setFolderName(folderLink.getFolderName());
+        deletedFolder.setUid(folderLink.getUid());
+        deletedFolder.setParent(folderLink.getParent());
+        deletedFolder.setCreateTime(folderLink.getCreateTime());
+        deletedFolder.setChildren(children);
+        // 删除文件
+        deleteFile(deletedFolder);
+    }
+
+    /**
+     * 删除文件
+     * @param deletedFolder
+     */
+    private void deleteFile(FolderLink deletedFolder){
+        String deletedFolderJson = JSON.toJSONString(deletedFolder);
+        HiLog.debug(LOG_LABEL, String.format("deletedFolderJson: %s", deletedFolderJson));
+
+        RequestBody requestBody = RequestBody.create(HttpUtil.JSON, deletedFolderJson);
+        String accessToken = tokenDao.get().getAccessToken();
+        Map<String, String> addHeaders = new HashMap<>();
+        String Authorization = String.format("Bearer %s", accessToken);
+        addHeaders.put("Authorization", Authorization);
+        HttpUtil.delete(DELETE_FILE, requestBody, null, addHeaders, new okhttp3.Callback(){
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e){
+                HiLog.error(LOG_LABEL, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                String responseStr = response.body().string();
+                JSONObject object = JSONObject.parseObject(responseStr);
+                long status = object.getLongValue("status");
+                if (status > 0){
+                    HiLog.debug(LOG_LABEL, "删除文件成功");
+                    // 重新获取当前文件夹，并刷新页面
+                    // [TODO] 重新获得数据后，刷新页面优化
+                    getFolderLink();
+                } else {
+                    // 后台错误，或者 JSON字符串不包含 status
+                    HiLog.warn(LOG_LABEL, "删除文件失败");
+                }
+            }
+        });
+    }
+
+    /**
+     * FolderChildren 克隆
+     * @param children
+     * @return
+     */
+    private FolderChildren cloneChildren(FolderChildren children){
+        FolderChildren copy = new FolderChildren();
+        for (SimpleFolderLink simpleFolderLink : children.getFolders()){
+            copy.addFolder(new SimpleFolderLink(simpleFolderLink));
+        }
+        for (FileLink fileLink : children.getFiles()){
+            copy.addFile(new FileLink(fileLink));
+        }
+        return copy;
+    }
+
+    /**
+     * 开始分享文件
+     * @param children
+     */
+    private void startShare(FolderChildren children){
+        HiLog.debug(LOG_LABEL, "开始分享文件");
+        // 文件夹
+        children.getFolders().clear();
+        // 文件
+        for (FileLink fileLink : children.getFiles()){
+            fileLink.setLinkId(null);
+            fileLink.setCreateTime(null);
+        }
+        FileShareLink fileShareLink = new FileShareLink();
+        fileShareLink.setChildren(children);
+        HiLog.debug(LOG_LABEL, String.format("fileShareLink: %s", fileShareLink.toString()));
+        // 分享文件
+        shareFile(fileShareLink);
+    }
+
+    /**
+     * 分享文件
+     * @param fileShareLink
+     */
+    private void shareFile(FileShareLink fileShareLink){
+        String fileShareLinkJson = JSON.toJSONString(fileShareLink);
+        HiLog.debug(LOG_LABEL, String.format("fileShareLinkJson: %s", fileShareLinkJson));
+
+        RequestBody requestBody = RequestBody.create(HttpUtil.JSON, fileShareLinkJson);
+        String accessToken = tokenDao.get().getAccessToken();
+        Map<String, String> addHeaders = new HashMap<>();
+        String Authorization = String.format("Bearer %s", accessToken);
+        addHeaders.put("Authorization", Authorization);
+        HttpUtil.post(SHARE_FILE, requestBody, null, addHeaders, new okhttp3.Callback(){
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e){
+                HiLog.error(LOG_LABEL, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                String responseStr = response.body().string();
+                JSONObject object = JSONObject.parseObject(responseStr);
+                int status = object.getIntValue("status");
+                if (status == 1) {
+                    HiLog.debug(LOG_LABEL, "分享文件成功");
+                } else {
+                    // 后台错误，或者 JSON字符串不包含 status
+                    HiLog.warn(LOG_LABEL, "分享文件失败");
+                }
+            }
+        });
+    }
+
+    /**
+     * 开始下载文件
+     * @param children
+     */
+    private void startDownload(FolderChildren children){
+        HiLog.debug(LOG_LABEL, "****开始下载本文件夹");
+        // 下载子文件
+        int test = 0;
+        for (FileLink fileLink : children.getFiles()){
+            HiLog.debug(LOG_LABEL, String.format("*********开始下载文件：%s", fileLink.toString()));
+            if (test == 0){
+                // 新开启一个线程，进行网络请求
+                getGlobalTaskDispatcher(TaskPriority.DEFAULT)
+                        .asyncDispatch( () -> {
+                            getFileUrl(fileLink);
+                        });
+            }
+            test ++;
+        }
+        // 下载子文件夹
+        for (SimpleFolderLink simpleFolderLink : children.getFolders()){
+            HiLog.debug(LOG_LABEL, String.format("****开始下载文件夹：%s", simpleFolderLink.toString()));
+        }
+    }
+
+    /**
+     * 获取文件链接对应文件实体的真实地址
+     * @param fileLink
+     */
+    private void getFileUrl(FileLink fileLink){
+        String url = String.format(GET_FILE_URL, fileLink.getFileId());
+        String accessToken = tokenDao.get().getAccessToken();
+        Map<String, String> addHeaders = new HashMap<>();
+        String Authorization = String.format("Bearer %s", accessToken);
+        addHeaders.put("Authorization", Authorization);
+        HttpUtil.get(url, null, addHeaders, new okhttp3.Callback(){
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e){
+                HiLog.error(LOG_LABEL, String.format("下载文件失败：%s", fileLink.toString()));
+                HiLog.error(LOG_LABEL, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                String responseStr = response.body().string();
+                if (response.isSuccessful()){
+                    // HiLog.debug(LOG_LABEL, String.format("responseStr: %s", responseStr));
+                    if (responseStr == null || "".equals(responseStr.trim())){
+                        HiLog.warn(LOG_LABEL, String.format("对应文件不存在：%s", fileLink.toString()));
+                    } else {
+                        String fileUrl = responseStr;
+                        HiLog.debug(LOG_LABEL, String.format("对应文件地址：%s", fileUrl));
+                        // 新开启一个线程，下载文件
+                        getGlobalTaskDispatcher(TaskPriority.DEFAULT)
+                                .asyncDispatch( () -> {
+                                    downloadFile(fileUrl, fileLink);
+                                });
+                    }
+                } else {
+                    HiLog.error(LOG_LABEL, String.format("下载文件失败：%s", fileLink.toString()));
+                    HiLog.error(LOG_LABEL, responseStr);
+                }
+            }
+        });
+    }
+
+    /**
+     * 下载文件
+     * @param fileUrl
+     * @param fileLink
+     */
+    private void downloadFile(String fileUrl, FileLink fileLink){
+        int index = fileUrl.indexOf('/');
+        String groupName = fileUrl.substring(0, index);
+        String remoteFileName = fileUrl.substring(index + 1);
+        HiLog.debug(LOG_LABEL, String.format("group_name: %s, remote_file_name: %s", groupName, remoteFileName));
+        // 构建文件路径
+        String filePath = rootDir + java.io.File.separator + fileLink.getLinkName();
+        HiLog.debug(LOG_LABEL, String.format("下载文件路径：%s", filePath));
+        java.io.File fileDir = new java.io.File(rootDir);
+        if (!fileDir.exists()){
+            // 创建文件根目录
+            fileDir.mkdirs();
+        }
+        java.io.File file = new java.io.File(filePath);
+        if (file.exists()){
+            // 文件已存在
+            HiLog.debug(LOG_LABEL, String.format("本地已存在文件：%s", fileLink.getLinkName()));
+            return;
+        }
+        try (FileOutputStream outputStream = new FileOutputStream(file)){
+            // 文件不存在，下载文件
+            byte[] fileBytes = FastDFSUtil.download(groupName, remoteFileName);
+            outputStream.write(fileBytes);
+            HiLog.debug(LOG_LABEL, String.format("下载文件%s成功，文件大小：%d", fileLink.getLinkName(), fileBytes.length));
+            // 本地添加下载记录
+            insert_fileDownload(fileLink);
+            // 本地查询下载记录
+            query_fileDownload();
+
+            // 本地文件读取测试
+            test(fileLink.getLinkName());
+        } catch (IOException ex){
+            HiLog.error(LOG_LABEL, String.format("下载文件发生IOException异常：%s", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (MyException ex){
+            HiLog.error(LOG_LABEL, String.format("下载文件发生MyException异常：%s", ex.getMessage()));
+            ex.printStackTrace();
+        }
+    }
+
+    private void test(String linkName){
+        try{
+            Uri uri = Uri.parse("dataability:///cn.qixqi.pan.data.FileDataAbility/download?" + linkName);
+            FileDescriptor fd = helper.openFile(uri, "r");
+            FileInputStream inputStream = new FileInputStream(fd);
+            HiLog.debug(LOG_LABEL, String.format("---------本地文件读取测试，size: %d", inputStream.available()));
+            inputStream.close();
+        } catch (Exception e){
+            e.printStackTrace();
+            HiLog.error(LOG_LABEL, String.format("---------本地文件读取测试异常：%s", e.getMessage()));
+        }
+    }
+
+    /**
+     * 本地添加下载记录
+     * @param fileLink
+     */
+    private void insert_fileDownload(FileLink fileLink){
+        ValuesBucket values = new ValuesBucket();
+        values.putString("linkId", fileLink.getLinkId());
+        values.putString("linkName", fileLink.getLinkName());
+        values.putString("fileId", fileLink.getFileId());
+        values.putString("fileType", fileLink.getFileType());
+        values.putLong("fileSize", fileLink.getFileSize());
+        values.putLong("downloadFinishTime", new Date().getTime());
+        // [TODO] downloadStatus 使用状态码代替字符串
+        values.putString("downloadStatus", "下载完成");
+        try {
+            int result = helper.insert(Uri.parse(DOWNLOAD_BASE_URI + DOWNLOAD_DATA_PATH), values);
+            if (result != -1){
+                HiLog.info(LOG_LABEL, "本地添加下载记录，成功！");
+            } else {
+                HiLog.warn(LOG_LABEL, "本地添加下载记录，失败！");
+            }
+        } catch (DataAbilityRemoteException ex){
+            HiLog.error(LOG_LABEL, String.format("本地添加下载记录发生DataAbilityRemoteException异常，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            HiLog.error(LOG_LABEL, String.format("本地添加下载记录发生IllegalStateException异常，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * 本地查询下载记录
+     */
+    private void query_fileDownload(){
+        // 查询字段
+        String[] columns = new String[] {
+                "downloadId", "linkId", "linkName", "fileId", "fileType", "fileSize", "downloadFinishTime", "downloadStatus" };
+        // 查询条件
+        DataAbilityPredicates predicates = new DataAbilityPredicates();
+        try {
+            ResultSet resultSet = helper.query(Uri.parse(DOWNLOAD_BASE_URI + DOWNLOAD_DATA_PATH), columns, predicates);
+            if (resultSet == null){
+                HiLog.debug(LOG_LABEL, "query: resultSet is null");
+                return;
+            } else if (resultSet.getRowCount() == 0){
+                HiLog.debug(LOG_LABEL, "query: resultSet is no result found");
+                return;
+            }
+            resultSet.goToFirstRow();
+            do {
+                int downloadId = resultSet.getInt(resultSet.getColumnIndexForName("downloadId"));
+                String linkId = resultSet.getString(resultSet.getColumnIndexForName("linkId"));
+                String linkName = resultSet.getString(resultSet.getColumnIndexForName("linkName"));
+                String fileId = resultSet.getString(resultSet.getColumnIndexForName("fileId"));
+                String fileType = resultSet.getString(resultSet.getColumnIndexForName("fileType"));
+                long fileSize = resultSet.getLong(resultSet.getColumnIndexForName("fileSize"));
+                long downloadFinishTime = resultSet.getLong(resultSet.getColumnIndexForName("downloadFinishTime"));
+                String downloadStatus = resultSet.getString(resultSet.getColumnIndexForName("downloadStatus"));
+                HiLog.debug(LOG_LABEL, String.format("downloadId: %d, linkId: %s, linkName: %s, fileId: %s, fileType: %s, " +
+                                "fileSize: %d, downloadFinishTime: %d, downloadStatus: %s", downloadId, linkId, linkName, fileId,
+                        fileType, fileSize, downloadFinishTime, downloadStatus));
+            } while (resultSet.goToNextRow());
+        } catch (DataAbilityRemoteException ex){
+            HiLog.error(LOG_LABEL, String.format("本地查询下载记录发生DataAbilityRemoteException异常，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        } catch (IllegalStateException ex){
+            HiLog.error(LOG_LABEL, String.format("本地查询下载记录发生IllegalStateException异常，异常信息：%s", ex.getMessage()));
+            ex.printStackTrace();
+        }
+    }
+
+    /**
      * 本地添加上传记录
      * @param fileLink
      */
@@ -727,10 +1204,10 @@ public class FileSystemAbilitySlice extends AbilitySlice {
                 HiLog.warn(LOG_LABEL, "本地添加上传记录，失败！");
             }
         } catch (DataAbilityRemoteException ex){
-            HiLog.error(LOG_LABEL, String.format("本地添加上传记录发生DataAbilityRemoteException异常，异常信息：", ex.getMessage()));
+            HiLog.error(LOG_LABEL, String.format("本地添加上传记录发生DataAbilityRemoteException异常，异常信息：%s", ex.getMessage()));
             ex.printStackTrace();
         } catch (IllegalStateException ex){
-            HiLog.error(LOG_LABEL, String.format("本地添加上传记录发生IllegalStateException异常，异常信息：", ex.getMessage()));
+            HiLog.error(LOG_LABEL, String.format("本地添加上传记录发生IllegalStateException异常，异常信息：%s", ex.getMessage()));
             ex.printStackTrace();
         }
     }
@@ -768,11 +1245,91 @@ public class FileSystemAbilitySlice extends AbilitySlice {
                         fileType, fileSize, uploadFinishTime, uploadStatus));
             } while (resultSet.goToNextRow());
         } catch (DataAbilityRemoteException ex){
-            HiLog.error(LOG_LABEL, String.format("本地查询上传记录发生DataAbilityRemoteException异常，异常信息：", ex.getMessage()));
+            HiLog.error(LOG_LABEL, String.format("本地查询上传记录发生DataAbilityRemoteException异常，异常信息：%s", ex.getMessage()));
             ex.printStackTrace();
         } catch (IllegalStateException ex){
-            HiLog.error(LOG_LABEL, String.format("本地查询上传记录发生IllegalStateException异常，异常信息：", ex.getMessage()));
+            HiLog.error(LOG_LABEL, String.format("本地查询上传记录发生IllegalStateException异常，异常信息：%s", ex.getMessage()));
             ex.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onBackPressed(){
+        if (isItemSelected) {
+            // 当前子文件、子文件夹被选中
+            // 全部子项取消选中
+            childItemProvider.cancelSelected();
+            childItemProvider.notifyDataChanged();
+            setBottomToolBar();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    /**
+     * 实现 ChildItemProvider 中的Callback接口，响应 childrenContainer 内部控件点击事件
+     * @param component
+     */
+    @Override
+    public void click(Component component){
+        // Toast.makeToast(abilitySlice, "test", Toast.TOAST_SHORT).show();
+        switch (component.getId()){
+            case ResourceTable.Id_check_layout:
+                int position = (Integer) component.getTag();
+                // Toast.makeToast(abilitySlice, String.format("您当前点击：%d", position), Toast.TOAST_SHORT).show();
+                if (childItemProvider.isFolder(position)){
+                    // 选中子文件夹
+                    FolderItemInfo folderItemInfo = (FolderItemInfo) childItemProvider.getItem(position);
+                    folderItemInfo.setChecked(!folderItemInfo.isChecked());
+                    selectedItemCount += folderItemInfo.isChecked() ? 1 : -1;
+                } else {
+                    // 选中子文件
+                    FileItemInfo fileItemInfo = (FileItemInfo) childItemProvider.getItem(position);
+                    fileItemInfo.setChecked(!fileItemInfo.isChecked());
+                    selectedItemCount += fileItemInfo.isChecked() ? 1 : -1;
+                }
+                childItemProvider.notifyDataSetItemChanged(position);
+                if (!isItemSelected){
+                    setSelectedBottomToolBar();
+                }
+                if (selectedItemCount <= 0){
+                    setBottomToolBar();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 应用请求权限
+     */
+    private void requestPermissions(){
+        if (verifySelfPermission("ohos.permission.WRITE_USER_STORAGE") != IBundleManager.PERMISSION_GRANTED ||
+                verifySelfPermission("ohos.permission.CAMERA") != IBundleManager.PERMISSION_GRANTED ||
+                verifySelfPermission("ohos.permission.READ_MEDIA") != IBundleManager.PERMISSION_GRANTED ||
+                verifySelfPermission("ohos.permission.READ_USER_STORAGE") != IBundleManager.PERMISSION_GRANTED) {
+
+            HiLog.debug(LOG_LABEL, "没有权限，尝试申请权限");
+            // 没有权限
+            if (canRequestPermission("ohos.permission.READ_MEDIA")) {
+                // ohos.permission.READ_MEDIA 允许弹框授权
+                HiLog.debug(LOG_LABEL, "ohos.permission.READ_MEDIA 允许弹框授权");
+                requestPermissionsFromUser(
+                        new String[]{"ohos.permission.READ_MEDIA",
+                                "ohos.permission.WRITE_MEDIA",
+                                "ohos.permission.MEDIA_LOCATION",
+                                "ohos.permission.CAMERA",
+                                "ohos.permission.READ_USER_STORAGE",
+                                "ohos.permission.WRITE_USER_STORAGE"
+                        }, MY_PERMISSIONS_REQUEST_CAMERA);
+            } else {
+                // ohos.permission.READ_MEDIA 不允许弹框授权
+                HiLog.warn(LOG_LABEL, "ohos.permission.READ_MEDIA 不允许弹框授权");
+            }
+        } else {
+            // 有权限
+            HiLog.debug(LOG_LABEL, "应用已获得权限");
         }
     }
 
@@ -786,3 +1343,19 @@ public class FileSystemAbilitySlice extends AbilitySlice {
         super.onForeground(intent);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

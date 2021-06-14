@@ -235,6 +235,46 @@
     {
       "name": "title_file_upload",
       "value": "上传列表"
+    },
+    {
+      "name": "upload",
+      "value": "上传"
+    },
+    {
+      "name": "download",
+      "value": "下载"
+    },
+    {
+      "name": "upload_tab1_text",
+      "value": "上传完成"
+    },
+    {
+      "name": "upload_tab2_text",
+      "value": "正在上传"
+    },
+    {
+      "name": "download_tab1_text",
+      "value": "下载完成"
+    },
+    {
+      "name": "download_tab2_text",
+      "value": "正在下载"
+    },
+    {
+      "name": "bnav_item_download",
+      "value": "下载"
+    },
+    {
+      "name": "bnav_item_share",
+      "value": "分享"
+    },
+    {
+      "name": "bnav_item_delete",
+      "value": "删除"
+    },
+    {
+      "name": "bnav_item_rename",
+      "value": "重命名"
     }
   ]
 }

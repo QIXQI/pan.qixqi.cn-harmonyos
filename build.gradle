@@ -2,12 +2,23 @@
 apply plugin: 'com.huawei.ohos.app'
 
 ohos {
+    signingConfigs {
+        debug {
+            storeFile file('C:\\Users\\QIXQI\\.ohos\\config\\auto_debug_150086000128683358.p12')
+            storePassword '00000018269C88223904D75C1AD1BBFD8B7FC912E8AB6AC8163C76E746B92E0C5FF9D94E017F41E4'
+            keyAlias = 'debugKey'
+            keyPassword '00000018D3A5AB44B5DEE13E1C72D6FF42F607E7EF44F44CED485947281546966D93A1923FC8DF14'
+            signAlg = 'SHA256withECDSA'
+            profile file('C:\\Users\\QIXQI\\.ohos\\config\\auto_debug_pan_150086000128683358.p7b')
+            certpath file('C:\\Users\\QIXQI\\.ohos\\config\\auto_debug_150086000128683358.cer')
+        }
+    }
     compileSdkVersion 5
     defaultConfig {
         compatibleSdkVersion 5
     }
 }
-	
+
 buildscript {
     repositories {
         maven {
@@ -16,10 +27,10 @@ buildscript {
         maven {
             url 'https://developer.huawei.com/repo/'
         }
-		jcenter()
+        jcenter()
     }
     dependencies {
-        classpath 'com.huawei.ohos:hap:2.4.2.7'
+        classpath 'com.huawei.ohos:hap:2.4.4.2'
         classpath 'com.huawei.ohos:decctest:1.0.0.7'
     }
 }
@@ -32,6 +43,6 @@ allprojects {
         maven {
             url 'https://developer.huawei.com/repo/'
         }
-		jcenter()
+        jcenter()
     }
 }

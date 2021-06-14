@@ -31,7 +31,7 @@
             ohos:width="match_content"
             ohos:alpha="0.95"
             ohos:text_size="$float:bottom_item_text_size"
-            ohos:text="$string:bnav_folder_txt" />
+            ohos:text="$string:download" />
 
     </DirectionalLayout>
 
@@ -60,7 +60,7 @@
             ohos:width="match_content"
             ohos:alpha="0.95"
             ohos:text_size="$float:bottom_item_text_size"
-            ohos:text="$string:bnav_share_txt" />
+            ohos:text="$string:upload" />
 
     </DirectionalLayout>
 

@@ -113,7 +113,6 @@
 
     <!-- 底部导航栏 -->
     <include
-        ohos:id="$+id:bottom_bar"
         ohos:height="$float:bottom_bar_height"
         ohos:layout="$layout:bottom_bar"
         ohos:width="match_parent"

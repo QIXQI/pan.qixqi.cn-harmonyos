@@ -75,6 +75,18 @@
     {
       "name": "color_user_info_secondary_text",
       "value": "#79000000"
+    },
+    {
+      "name": "normal_text_color_tab",
+      "value": "#999999"
+    },
+    {
+      "name": "direct_layout_color",
+      "value": "#F5F5F5"
+    },
+    {
+      "name": "preview_image_color",
+      "value": "#808080"
     }
   ]
 }

@@ -1,6 +1,8 @@
 package cn.qixqi.pan.util;
 
 import cn.qixqi.pan.model.FastDFSFile;
+import ohos.hiviewdfx.HiLog;
+import ohos.hiviewdfx.HiLogLabel;
 import org.csource.common.MyException;
 import org.csource.common.NameValuePair;
 import org.csource.fastdfs.*;
@@ -22,6 +24,8 @@ import java.net.InetAddress;
  *      tracker 信息获取
  */
 public class FastDFSUtil {
+    private static final HiLogLabel LOG_LABEL = new HiLogLabel(3, 0xD001100, FastDFSUtil.class.getName());
+
     /**
      * 初始化连接
      */
@@ -137,6 +141,8 @@ public class FastDFSUtil {
         NameValuePair nameValuePair = new NameValuePair("address", "大连");
         list[0] = nameValuePair;
 
+        HiLog.debug(LOG_LABEL, String.format("输入流长度：%d", inputStream.available()));
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] buff = new byte[1024];
         int len = 0;
@@ -144,6 +150,7 @@ public class FastDFSUtil {
             outputStream.write(buff, 0, len);
         }
         byte[] stream2Byte = outputStream.toByteArray();
+        HiLog.debug(LOG_LABEL, String.format("文件字节数组长度：%d", stream2Byte.length));
         String[] rsp = storageClient.upload_file(stream2Byte, file_ext_name, list);
 
         // 文件服务器
@@ -153,6 +160,7 @@ public class FastDFSUtil {
         String url = rsp[0] + "/" + rsp[1];
 
         return ipPort + url; */
+        // inputStream.close();
         return rsp[0] + "/" + rsp[1];
     }
 

@@ -11,6 +11,19 @@ public class FileLink {
     private long fileSize;
     private Date createTime;
 
+    public FileLink(){
+
+    }
+
+    public FileLink(FileLink fileLink){
+        this.linkId = fileLink.getLinkId();
+        this.linkName = fileLink.getLinkName();
+        this.fileId = fileLink.getFileId();
+        this.fileType = fileLink.getFileType();
+        this.fileSize = fileLink.getFileSize();
+        this.createTime = fileLink.getCreateTime();
+    }
+
     public String getLinkId() {
         return linkId;
     }

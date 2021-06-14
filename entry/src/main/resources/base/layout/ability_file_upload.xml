@@ -43,6 +43,46 @@
         </DirectionalLayout>
     </DirectionalLayout>
 
+    <TabList
+        ohos:id="$+id:tab_list_upload"
+        ohos:height="$float:height_tab_list_upload"
+        ohos:width="match_parent"
+        ohos:below="$id:appBar"
+        ohos:fixed_mode="true"
+        ohos:tab_margin="$float:tab_margin_tab_list_upload"
+        ohos:tab_length="$float:tab_length_tab_list_upload"
+        ohos:normal_text_color="$color:normal_text_color_tab"
+        ohos:selected_text_color="blue"
+        ohos:selected_tab_indicator_color="blue"
+        ohos:selected_tab_indicator_height="$float:selected_tab_indicator_height_tab_list_upload"
+        ohos:text_size="$float:text_size_tab_list_upload"
+        ohos:text_alignment="center"
+        ohos:layout_alignment="center"
+        ohos:orientation="horizontal"/>
+
+    <ScrollView
+        ohos:height="match_parent"
+        ohos:width="match_parent"
+        ohos:below="$id:tab_list_upload">
+
+        <DirectionalLayout
+            ohos:id="$+id:upload_file_layout"
+            ohos:height="match_parent"
+            ohos:width="match_parent"
+            ohos:left_margin="$float:list_layout_left_margin"
+            ohos:right_margin="$float:list_layout_right_margin"
+            ohos:bottom_margin="$float:list_layout_bottom_margin"
+            ohos:orientation="vertical">
+
+            <ListContainer
+                ohos:id="$+id:upload_file_container"
+                ohos:height="match_content"
+                ohos:width="match_parent"
+                ohos:long_click_enabled="true" />
+
+        </DirectionalLayout>
+    </ScrollView>
+
     <!-- 底部导航栏 -->
     <include
         ohos:id="$+id:bottom_bar"

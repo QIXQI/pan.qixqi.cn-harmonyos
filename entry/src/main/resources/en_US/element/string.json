@@ -235,6 +235,46 @@
     {
       "name": "title_file_upload",
       "value": "upload list"
+    },
+    {
+      "name": "upload",
+      "value": "Upload"
+    },
+    {
+      "name": "download",
+      "value": "Download"
+    },
+    {
+      "name": "upload_tab1_text",
+      "value": "Uploaded"
+    },
+    {
+      "name": "upload_tab2_text",
+      "value": "Uploading"
+    },
+    {
+      "name": "download_tab1_text",
+      "value": "Downloaded"
+    },
+    {
+      "name": "download_tab2_text",
+      "value": "Downloading"
+    },
+    {
+      "name": "bnav_item_download",
+      "value": "Download"
+    },
+    {
+      "name": "bnav_item_share",
+      "value": "Share"
+    },
+    {
+      "name": "bnav_item_delete",
+      "value": "Delete"
+    },
+    {
+      "name": "bnav_item_rename",
+      "value": "Rename"
     }
   ]
 }

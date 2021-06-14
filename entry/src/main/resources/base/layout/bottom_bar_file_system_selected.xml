@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DirectionalLayout
     xmlns:ohos="http://schemas.huawei.com/res/ohos"
-    ohos:id="$+id:bottom_bar"
+    ohos:id="$+id:bottom_bar_selected"
     ohos:height="$float:bottom_bar_height"
     ohos:width="match_parent"
-    ohos:background_element="$color:bottom_bar_background_color"
+    ohos:background_element="$color:primary_color"
     ohos:visibility="hide"
     ohos:orientation="horizontal">
 
-    <!-- 文件列表 -->
+    <!-- 下载 -->
     <DirectionalLayout
-        ohos:id="$+id:bnav_folder"
+        ohos:id="$+id:bnav_item_download"
         ohos:height="match_content"
         ohos:width="match_content"
         ohos:alignment="horizontal_center"
@@ -18,8 +18,8 @@
         ohos:weight="1">
 
         <Image
-            ohos:id="$+id:bnav_folder_img"
-            ohos:image_src="$media:bnav_folder"
+            ohos:id="$+id:bnav_item_download_img"
+            ohos:image_src="$media:bnav_item_download"
             ohos:height="$float:bnav_image_height"
             ohos:width="$float:bnav_image_width"
             ohos:alpha="0.9"
@@ -27,18 +27,20 @@
             ohos:scale_y="1" />
 
         <Text
-            ohos:id="$+id:bnav_folder_txt"
+            ohos:id="$+id:bnav_item_download_txt"
             ohos:height="match_content"
             ohos:width="match_content"
             ohos:alpha="0.95"
             ohos:text_size="$float:bottom_item_text_size"
-            ohos:text="$string:bnav_folder_txt" />
+            ohos:text_color="white"
+            ohos:text="$string:bnav_item_download" />
 
     </DirectionalLayout>
 
-    <!-- 分享列表 -->
+
+    <!-- 分享 -->
     <DirectionalLayout
-        ohos:id="$+id:bnav_share"
+        ohos:id="$+id:bnav_item_share"
         ohos:height="match_content"
         ohos:width="match_content"
         ohos:alignment="horizontal_center"
@@ -46,8 +48,8 @@
         ohos:weight="1">
 
         <Image
-            ohos:id="$+id:bnav_share_img"
-            ohos:image_src="$media:bnav_share"
+            ohos:id="$+id:bnav_item_share_img"
+            ohos:image_src="$media:bnav_item_share"
             ohos:height="$float:bnav_image_height"
             ohos:width="$float:bnav_image_width"
             ohos:alpha="0.9"
@@ -55,18 +57,20 @@
             ohos:scale_y="1" />
 
         <Text
-            ohos:id="$+id:bnav_share_txt"
+            ohos:id="$+id:bnav_item_share_txt"
             ohos:height="match_content"
             ohos:width="match_content"
             ohos:alpha="0.95"
             ohos:text_size="$float:bottom_item_text_size"
-            ohos:text="$string:bnav_share_txt" />
+            ohos:text_color="white"
+            ohos:text="$string:bnav_item_share" />
 
     </DirectionalLayout>
 
-    <!-- 个人信息 -->
+
+    <!-- 删除 -->
     <DirectionalLayout
-        ohos:id="$+id:bnav_profile"
+        ohos:id="$+id:bnav_item_delete"
         ohos:height="match_content"
         ohos:width="match_content"
         ohos:alignment="horizontal_center"
@@ -74,8 +78,8 @@
         ohos:weight="1">
 
         <Image
-            ohos:id="$+id:bnav_profile_img"
-            ohos:image_src="$media:bnav_profile"
+            ohos:id="$+id:bnav_item_delete_img"
+            ohos:image_src="$media:bnav_item_delete"
             ohos:height="$float:bnav_image_height"
             ohos:width="$float:bnav_image_width"
             ohos:alpha="0.9"
@@ -83,13 +87,45 @@
             ohos:scale_y="1" />
 
         <Text
-            ohos:id="$+id:bnav_profile_txt"
+            ohos:id="$+id:bnav_item_delete_txt"
             ohos:height="match_content"
             ohos:width="match_content"
             ohos:alpha="0.95"
             ohos:text_size="$float:bottom_item_text_size"
-            ohos:text="$string:bnav_profile_txt" />
+            ohos:text_color="white"
+            ohos:text="$string:bnav_item_delete" />
 
     </DirectionalLayout>
+
+
+    <!-- 重命名 -->
+    <DirectionalLayout
+        ohos:id="$+id:bnav_item_rename"
+        ohos:height="match_content"
+        ohos:width="match_content"
+        ohos:alignment="horizontal_center"
+        ohos:orientation="vertical"
+        ohos:weight="1">
+
+        <Image
+            ohos:id="$+id:bnav_item_rename_img"
+            ohos:image_src="$media:bnav_item_rename"
+            ohos:height="$float:bnav_image_height"
+            ohos:width="$float:bnav_image_width"
+            ohos:alpha="0.9"
+            ohos:scale_x="1"
+            ohos:scale_y="1" />
+
+        <Text
+            ohos:id="$+id:bnav_item_rename_txt"
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:alpha="0.95"
+            ohos:text_size="$float:bottom_item_text_size"
+            ohos:text_color="white"
+            ohos:text="$string:bnav_item_rename" />
+
+    </DirectionalLayout>
+
 
 </DirectionalLayout>

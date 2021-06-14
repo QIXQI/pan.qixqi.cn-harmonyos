@@ -50,6 +50,7 @@ public class ProfileAbilitySlice extends AbilitySlice {
     private UserInfoItemProvider userInfoItemProvider;
 
     private List<BottomBarItemInfo> bottomBarItemInfoList;
+    private Component bottomBar;
 
     @Override
     public void onStart(Intent intent) {
@@ -77,6 +78,9 @@ public class ProfileAbilitySlice extends AbilitySlice {
      * 初始化控件和布局
      */
     private void initView(){
+        // **********底部导航栏************
+        bottomBar = (DirectionalLayout) findComponentById(ResourceTable.Id_bottom_bar);
+
         uname = (Text) findComponentById(ResourceTable.Id_uname);
         uname.setText(user.getUname());
 
@@ -128,13 +132,15 @@ public class ProfileAbilitySlice extends AbilitySlice {
      * 设置底部导航栏
      */
     private void setBottomToolBar(){
+        bottomBar.setVisibility(Component.VISIBLE);
+
         BottomBarItemView bottomBarItemView = new BottomBarItemView();
         bottomBarItemInfoList = bottomBarItemView.getBottomBarItemInfos();
 
         IntStream.range(0, bottomBarItemInfoList.size()).forEach(position -> {
             DirectionalLayout bottomItemLayout = (DirectionalLayout) abilitySlice.findComponentById(
                     bottomBarItemInfoList.get(position).getBnavLayoutId());
-            bottomItemLayout.setVisibility(Component.VISIBLE);
+            // bottomItemLayout.setVisibility(Component.VISIBLE);
             Image image = (Image) bottomItemLayout.findComponentById(
                     bottomBarItemInfoList.get(position).getBnavImgId());
             Text text = (Text) bottomItemLayout.findComponentById(

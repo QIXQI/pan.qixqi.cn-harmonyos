@@ -22,62 +22,84 @@
         ohos:right_margin="$float:list_layout_right_margin"
         />
 
+<!--    <ScrollView-->
+<!--        ohos:height="match_content"-->
+<!--        ohos:width="match_parent"-->
+<!--        ohos:below="$id:search_bar"-->
+<!--        ohos:orientation="vertical">-->
+
+<!--        <DependentLayout-->
+<!--            ohos:height="match_parent"-->
+<!--            ohos:width="match_parent">-->
+
+<!--        &lt;!&ndash; 文件夹列表 &ndash;&gt;-->
+<!--        <DirectionalLayout-->
+<!--            ohos:id="$+id:folders_layout"-->
+<!--            ohos:height="match_content"-->
+<!--            ohos:width="match_parent"-->
+<!--            ohos:below="$id:search_bar"-->
+<!--            ohos:left_margin="$float:list_layout_left_margin"-->
+<!--            ohos:right_margin="$float:list_layout_right_margin"-->
+<!--            ohos:orientation="vertical">-->
+
+<!--            <ListContainer-->
+<!--                ohos:id="$+id:folders_container"-->
+<!--                ohos:height="match_content"-->
+<!--                ohos:width="match_parent"-->
+<!--                ohos:long_click_enabled="true" />-->
+
+<!--        </DirectionalLayout>-->
+
+<!--        &lt;!&ndash; 文件列表 &ndash;&gt;-->
+<!--        <DirectionalLayout-->
+<!--            ohos:id="$+id:files_layout"-->
+<!--            ohos:height="match_content"-->
+<!--            ohos:width="match_parent"-->
+<!--            ohos:below="$id:folders_layout"-->
+<!--            ohos:bottom_margin="$float:list_layout_bottom_margin"-->
+<!--            ohos:left_margin="$float:list_layout_left_margin"-->
+<!--            ohos:right_margin="$float:list_layout_right_margin"-->
+<!--            ohos:orientation="vertical">-->
+
+
+
+<!--            <ListContainer-->
+<!--                ohos:id="$+id:files_container"-->
+<!--                ohos:height="match_content"-->
+<!--                ohos:width="match_parent"-->
+<!--                ohos:long_click_enabled="true" />-->
+
+<!--        </DirectionalLayout>-->
+
+<!--        </DependentLayout>-->
+
+<!--    </ScrollView>-->
+
     <ScrollView
-        ohos:height="match_content"
-        ohos:width="match_parent"
+        ohos:height="match_parent"
         ohos:below="$id:search_bar"
-        ohos:orientation="vertical">
+        ohos:width="match_parent">
 
-        <DependentLayout
+        <DirectionalLayout
+            ohos:id="$+id:children_layout"
             ohos:height="match_parent"
-            ohos:width="match_parent">
-
-        <!-- 文件夹列表 -->
-        <DirectionalLayout
-            ohos:id="$+id:folders_layout"
-            ohos:height="match_content"
             ohos:width="match_parent"
-            ohos:below="$id:search_bar"
             ohos:left_margin="$float:list_layout_left_margin"
             ohos:right_margin="$float:list_layout_right_margin"
-            ohos:orientation="vertical">
-
-            <ListContainer
-                ohos:id="$+id:folders_container"
-                ohos:height="match_content"
-                ohos:width="match_parent"
-                ohos:long_click_enabled="true" />
-
-        </DirectionalLayout>
-
-        <!-- 文件列表 -->
-        <DirectionalLayout
-            ohos:id="$+id:files_layout"
-            ohos:height="match_content"
-            ohos:width="match_parent"
-            ohos:below="$id:folders_layout"
             ohos:bottom_margin="$float:list_layout_bottom_margin"
-            ohos:left_margin="$float:list_layout_left_margin"
-            ohos:right_margin="$float:list_layout_right_margin"
             ohos:orientation="vertical">
 
-
-
-            <ListContainer
-                ohos:id="$+id:files_container"
-                ohos:height="match_content"
-                ohos:width="match_parent"
-                ohos:long_click_enabled="true" />
+                <ListContainer
+                    ohos:id="$+id:children_container"
+                    ohos:height="match_content"
+                    ohos:width="match_parent"
+                    ohos:long_click_enabled="true" />
 
         </DirectionalLayout>
-
-        </DependentLayout>
-
     </ScrollView>
 
     <!-- 底部导航栏 -->
     <include
-        ohos:id="$+id:bottom_bar"
         ohos:height="$float:bottom_bar_height"
         ohos:layout="$layout:bottom_bar"
         ohos:width="match_parent"
@@ -85,5 +107,16 @@
         ohos:alignment="vertical_center"
         ohos:background_element="$color:bottom_bar_background_color"
         ohos:orientation="horizontal"/>
+
+    <!-- 文件或文件夹选中时，底部导航栏 -->
+    <include
+        ohos:height="$float:bottom_bar_height"
+        ohos:layout="$layout:bottom_bar_file_system_selected"
+        ohos:width="match_parent"
+        ohos:align_parent_bottom="true"
+        ohos:alignment="vertical_center"
+        ohos:background_element="$color:primary_color"
+        ohos:orientation="horizontal"
+        ohos:visibility="hide" />
 
 </DependentLayout>

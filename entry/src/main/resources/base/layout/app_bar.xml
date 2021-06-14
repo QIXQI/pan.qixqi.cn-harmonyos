@@ -2,6 +2,7 @@
 <!-- 应用程序标题栏 -->
 <StackLayout
     xmlns:ohos="http://schemas.huawei.com/res/ohos"
+    ohos:id="$+id:app_bar"
     ohos:height="match_content"
     ohos:width="match_parent">
 

@@ -1,7 +1,9 @@
 package cn.qixqi.pan.model;
 
 
-public class FileDownload {
+import java.io.Serializable;
+
+public class FileDownload implements Serializable {
 
     private int downloadId;
     private String linkId;
@@ -11,6 +13,30 @@ public class FileDownload {
     private long fileSize;
     private long downloadFinishTime;
     private String downloadStatus;
+
+    public FileDownload(){
+        super();
+    }
+
+    public FileDownload(int downloadId, String linkId, String linkName, String fileId, String fileType, long fileSize,
+                        long downloadFinishTime, String downloadStatus) {
+        this.downloadId = downloadId;
+        this.linkId = linkId;
+        this.linkName = linkName;
+        this.fileId = fileId;
+        this.fileType = fileType;
+        this.fileSize = fileSize;
+        this.downloadFinishTime = downloadFinishTime;
+        this.downloadStatus = downloadStatus;
+    }
+
+    public int getDownloadId() {
+        return downloadId;
+    }
+
+    public void setDownloadId(int downloadId) {
+        this.downloadId = downloadId;
+    }
 
     public String getLinkId() {
         return linkId;

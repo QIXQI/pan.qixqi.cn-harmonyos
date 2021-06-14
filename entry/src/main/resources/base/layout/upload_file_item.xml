@@ -7,41 +7,32 @@
     ohos:top_padding="$float:list_item_top_padding">
 
     <DirectionalLayout
-        ohos:id="$+id:folder_img_layout"
+        ohos:id="$+id:upload_img_layout"
         ohos:height="match_content"
         ohos:width="match_content"
         ohos:right_margin="$float:list_item_profile_picture_right_margin"
         ohos:vertical_center="true">
 
-        <!-- 文件夹图像 -->
+        <!-- 文件图像 -->
         <Image
-            ohos:id="$+id:folder_img"
+            ohos:id="$+id:upload_img"
             ohos:height="match_content"
-            ohos:width="match_content"
-            ohos:image_src="$media:file_folder"/>
+            ohos:width="match_content" />
 
     </DirectionalLayout>
 
-
     <DirectionalLayout
-        ohos:id="$+id:folder_name_layout"
+        ohos:id="$+id:upload_info_layout"
         ohos:height="match_content"
         ohos:width="match_content"
         ohos:bottom_margin="$float:list_item_double_line_bottom_margin"
-        ohos:end_of="$id:folder_img_layout"
+        ohos:end_of="$id:upload_img_layout"
         ohos:orientation="vertical"
         ohos:vertical_center="true">
 
-        <!-- 文件夹ID -->
+        <!-- 文件链接名 -->
         <Text
-            ohos:id="$+id:folder_id"
-            ohos:width="match_content"
-            ohos:height="match_content"
-            ohos:visibility="hide" />
-
-        <!-- 文件夹名 -->
-        <Text
-            ohos:id="$+id:folder_name"
+            ohos:id="$+id:link_name"
             ohos:height="match_content"
             ohos:width="match_content"
             ohos:alpha="0.9"
@@ -49,6 +40,31 @@
             ohos:text_alignment="vertical_center|left"
             ohos:text_size="$float:list_item_main_text_size" />
 
+        <DirectionalLayout
+            ohos:height="match_content"
+            ohos:width="match_content"
+            ohos:orientation="horizontal">
+
+            <!-- 上传完成时间 -->
+            <Text
+                ohos:id="$+id:upload_finish_time"
+                ohos:height="match_content"
+                ohos:width="match_content"
+                ohos:alpha="0.9"
+                ohos:text_alignment="vertical_center|left"
+                ohos:text_size="$float:list_item_aux_text_size" />
+
+            <!-- 上传状态 -->
+            <Text
+                ohos:id="$+id:upload_status"
+                ohos:height="match_content"
+                ohos:width="match_content"
+                ohos:left_margin="$float:file_size_left_margin"
+                ohos:alpha="0.9"
+                ohos:text_alignment="vertical_center|left"
+                ohos:text_size="$float:list_item_aux_text_size" />
+
+        </DirectionalLayout>
     </DirectionalLayout>
 
     <DirectionalLayout
@@ -61,7 +77,7 @@
         ohos:vertical_center="true">
 
         <Image
-            ohos:id="$+id:folder_check"
+            ohos:id="$+id:upload_check"
             ohos:height="match_content"
             ohos:width="match_content"
             ohos:image_src="$media:file_uncheck"
@@ -74,8 +90,7 @@
         ohos:width="match_parent"
         ohos:alpha="0.3"
         ohos:background_element="$graphic:item_divider"
-        ohos:below="$id:folder_name_layout"
-        ohos:end_of="$id:folder_img_layout" />
-
+        ohos:below="$id:upload_info_layout"
+        ohos:end_of="$id:upload_img_layout" />
 
 </DependentLayout>
