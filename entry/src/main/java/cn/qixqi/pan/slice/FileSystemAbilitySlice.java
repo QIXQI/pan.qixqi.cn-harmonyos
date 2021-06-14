@@ -30,6 +30,10 @@ import ohos.aafwk.content.Intent;
 import ohos.aafwk.content.Operation;
 import ohos.agp.components.*;
 import ohos.agp.utils.Color;
+import ohos.agp.utils.LayoutAlignment;
+import ohos.agp.utils.TextAlignment;
+import ohos.agp.window.dialog.CommonDialog;
+import ohos.agp.window.dialog.IDialog;
 import ohos.app.dispatcher.TaskDispatcher;
 import ohos.app.dispatcher.task.TaskPriority;
 import ohos.bundle.IBundleManager;
@@ -51,6 +55,9 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.stream.IntStream;
+
+import static ohos.agp.components.ComponentContainer.LayoutConfig.MATCH_CONTENT;
+import static ohos.agp.components.ComponentContainer.LayoutConfig.MATCH_PARENT;
 
 public class FileSystemAbilitySlice extends AbilitySlice implements ChildItemProvider.Callback{
 
@@ -82,6 +89,7 @@ public class FileSystemAbilitySlice extends AbilitySlice implements ChildItemPro
     private static final String GET_FILE_URL = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/file/%s/url";
     private static final String SHARE_FILE = "http://ali4.qixqi.cn:5555/api/filesharing/v1/filesharing/fileShare/generator";
     private static final String DELETE_FILE = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/folderLink/child/children";
+    private static final String RENAME_FILE = "http://ali4.qixqi.cn:5555/api/filesystem/v1/filesystem/folderLink/child/children";
 
     // private ListContainer foldersContainer;
     // private ListContainer filesContainer;
@@ -851,10 +859,97 @@ public class FileSystemAbilitySlice extends AbilitySlice implements ChildItemPro
         HiLog.debug(LOG_LABEL, "开始重命名文件");
         if (selectedItemCount == 1){
             HiLog.debug(LOG_LABEL, "文件或文件夹被单选");
+            // 显示重命名对话框
+            showRenameDialog(children);
         } else {
             HiLog.warn(LOG_LABEL, "只有单选时才可重命名");
             Toast.makeToast(abilitySlice, "只有单选时才可重命名", Toast.TOAST_SHORT).show();
         }
+    }
+
+    /**
+     * 显示重命名对话框
+     * @param children
+     */
+    private void showRenameDialog(FolderChildren children){
+        FileLink fileLink = children.getFiles().get(0);
+        CommonDialog renameDialog = new CommonDialog(abilitySlice);
+        Component dialogComponent = LayoutScatter.getInstance(abilitySlice)
+                .parse(ResourceTable.Layout_dialog_rename, null, false);
+        TextField inputNewName = (TextField) dialogComponent.findComponentById(ResourceTable.Id_input_new_name);
+        Text cancel = (Text) dialogComponent.findComponentById(ResourceTable.Id_cancel);
+        Text rename = (Text) dialogComponent.findComponentById(ResourceTable.Id_rename);
+        renameDialog.setContentCustomComponent(dialogComponent);
+        renameDialog.setSize(MATCH_PARENT, MATCH_CONTENT);
+        renameDialog.setAlignment(LayoutAlignment.CENTER);
+        renameDialog.setTransparent(true);
+        renameDialog.setCornerRadius(15);
+        // renameDialog.setAutoClosable(true);
+        inputNewName.setText(fileLink.getLinkName());
+        inputNewName.requestFocus();
+        // 取消按钮
+        cancel.setClickedListener(component -> {
+            Toast.makeToast(abilitySlice, String.format("Click %s", getString(ResourceTable.String_cancel)),
+                    Toast.TOAST_SHORT).show();
+            renameDialog.destroy();
+        });
+        // 重命名按钮
+        rename.setClickedListener(component -> {
+            Toast.makeToast(abilitySlice, String.format("Click %s, new name: %s", getString(ResourceTable.String_rename),
+                    inputNewName.getText().trim()),
+                    Toast.TOAST_SHORT).show();
+            renameDialog.destroy();
+            if (!"".equals(inputNewName.getText().trim()) && !fileLink.getLinkName().equals(inputNewName.getText().trim())){
+                fileLink.setLinkName(inputNewName.getText().trim());
+                renameFile(children);
+            }
+        });
+        renameDialog.show();
+    }
+
+    /**
+     * 重命名文件
+     * @param children
+     */
+    private void renameFile(FolderChildren children){
+        FolderLink renamedFolder = new FolderLink();
+        renamedFolder.setFolderId(folderLink.getFolderId());
+        renamedFolder.setFolderName(folderLink.getFolderName());
+        renamedFolder.setUid(folderLink.getUid());
+        renamedFolder.setParent(folderLink.getParent());
+        renamedFolder.setCreateTime(folderLink.getCreateTime());
+        renamedFolder.setChildren(children);
+
+        String renamedFolderJson = JSON.toJSONString(renamedFolder);
+        HiLog.debug(LOG_LABEL, String.format("renamedFolderJson: %s", renamedFolderJson));
+
+        RequestBody requestBody = RequestBody.create(HttpUtil.JSON, renamedFolderJson);
+        String accessToken = tokenDao.get().getAccessToken();
+        Map<String, String> addHeaders = new HashMap<>();
+        String Authorization = String.format("Bearer %s", accessToken);
+        addHeaders.put("Authorization", Authorization);
+        HttpUtil.put(RENAME_FILE, requestBody, null, addHeaders, new okhttp3.Callback(){
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e){
+                HiLog.error(LOG_LABEL, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException{
+                String responseStr = response.body().string();
+                JSONObject object = JSONObject.parseObject(responseStr);
+                long status = object.getLongValue("status");
+                if (status > 0){
+                    HiLog.debug(LOG_LABEL, "重命名文件成功");
+                    // 重新获取当前文件夹，并刷新页面
+                    // [TODO] 重新获得数据后，刷新页面优化
+                    getFolderLink();
+                } else {
+                    // 后台错误，或者 JSON字符串不包含 status
+                    HiLog.warn(LOG_LABEL, "重命名文件失败");
+                }
+            }
+        });
     }
 
     /**

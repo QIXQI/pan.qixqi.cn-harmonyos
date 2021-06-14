@@ -275,6 +275,18 @@
     {
       "name": "bnav_item_rename",
       "value": "Rename"
+    },
+    {
+      "name": "rename",
+      "value": "Rename"
+    },
+    {
+      "name": "cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "input_new_name",
+      "value": "Input New Name"
     }
   ]
 }

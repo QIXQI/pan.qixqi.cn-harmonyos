@@ -355,6 +355,18 @@
     {
       "name": "filedataability_description",
       "value": "hap sample empty provider"
+    },
+    {
+      "name": "rename",
+      "value": "Rename"
+    },
+    {
+      "name": "cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "input_new_name",
+      "value": "Input New Name"
     }
   ]
 }

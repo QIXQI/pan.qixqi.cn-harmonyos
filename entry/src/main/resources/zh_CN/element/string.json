@@ -275,6 +275,18 @@
     {
       "name": "bnav_item_rename",
       "value": "重命名"
+    },
+    {
+      "name": "rename",
+      "value": "重命名"
+    },
+    {
+      "name": "cancel",
+      "value": "取消"
+    },
+    {
+      "name": "input_new_name",
+      "value": "输入新的名字"
     }
   ]
 }
